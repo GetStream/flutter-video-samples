@@ -1,0 +1,4 @@
+name: flutter_video_samples
+
+packages:
+  - packages/*
