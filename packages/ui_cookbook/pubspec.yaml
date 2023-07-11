@@ -38,10 +38,8 @@ dependencies:
   cupertino_icons: ^1.0.2
 
   # Stream Video SDK
-  stream_video:
-    path: ../../packages/stream_video
-  stream_video_flutter:
-    path: ../../packages/stream_video_flutter
+  stream_video:  0.0.1+1
+  stream_video_flutter: 0.0.1+1
   envied: ^0.3.0
   avatar_glow: ^2.0.2
 
