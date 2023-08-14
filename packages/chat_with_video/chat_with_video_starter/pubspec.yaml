@@ -9,16 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # Stream Chat SDK
-  stream_chat_flutter:
-    git:
-      url: https://github.com/GetStream/stream-chat-flutter
-      path: packages/stream_chat_flutter
-
-  # Stream Video SDK
-  stream_video_flutter: 0.0.1+1
-  envied: ^0.3.0
+  stream_chat_flutter: ^6.8.1
+  stream_video_flutter: 0.0.3
 
 dependency_overrides:
   rate_limiter: ^1.0.0

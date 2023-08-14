@@ -10,11 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Stream Chat SDK
-  stream_chat_flutter: ^6.5.0
-
-  # Stream Video SDK
-  stream_video_flutter: 0.0.1+1
+  stream_chat_flutter: ^6.8.1
+  stream_video_flutter: 0.0.3
   envied: ^0.3.0
 
 dependency_overrides:
