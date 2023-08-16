@@ -12,7 +12,6 @@ dependencies:
 
   stream_chat_flutter: ^6.8.1
   stream_video_flutter: 0.0.3
-  envied: ^0.3.0
 
 dependency_overrides:
   rate_limiter: ^1.0.0
