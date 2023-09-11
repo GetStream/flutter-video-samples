@@ -44,11 +44,14 @@ class LoginScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => ChannelListScreen(
-                onLogout: () {
-                  _logout(context);
-                },
-              )),
+        builder: (context) => Material(
+          child: Container(
+            child: Center(
+               child: Text("Let's start building!"),
+            ),
+          ),
+        )
+      ),
     );
   }
 
