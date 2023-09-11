@@ -25,13 +25,13 @@ If you’re interested in customizing the UI components for the Video SDK, check
 
 ## 📱 Previews
 <p align="center">
-<img src="https://github.com/GetStream/stream-video-android/assets/24237865/b7ffc91c-10c5-4d02-8714-d18a5b4c9e00" width="32%"/>
-<img src="https://github.com/GetStream/stream-video-android/assets/24237865/a5741658-8f51-4506-92b7-c0e8098725f3" width="32%"/>
-<img src="https://github.com/GetStream/stream-video-android/assets/24237865/3cc08121-c8c8-4b71-8a96-0cf33b9f2c68" width="32%"/>
+<img src="https://getstream.io/video/docs/assets/images/vc-ui-2-438cf138232cd657a5dcec1b44de752e.png" width="32%"/>
+<img src="https://getstream.io/video/docs/assets/images/webrtc_streaming-e91c93ccd1313ca07bf897b7398e1e0e.png" width="32%"/>
+<img src="https://getstream.io/video/docs/assets/images/incoming_call_screen-be7fa02cbcea5f166a1952e0eb046e30.png" width="32%"/>
 </p>
 
 ## 👩‍💻 Free for Makers 👨‍💻
-Stream is free for most side and hobby projects. To qualify, your project/company needs to have < 5 team members and < $10k in monthly revenue. Makers get $100 in monthly credit for video for free. For more details, check out the [Maker Account](https://getstream.io/maker-account?utm_source=Github&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=Github_Android_Video_SDK&utm_term=DevRelOss).
+Stream is free for most side and hobby projects. To qualify, your project/company needs to have < 5 team members and < $10k in monthly revenue. Makers get $100 in monthly credit for video for free. For more details, check out the [Maker Account](https://getstream.io/maker-account).
 
 ## 💡Supported Features💡
 Here are some of the features we support:
