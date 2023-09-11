@@ -25,9 +25,7 @@ If you’re interested in customizing the UI components for the Video SDK, check
 
 ## 📱 Previews
 <p align="center">
-<img src="https://getstream.io/video/docs/assets/images/vc-ui-2-438cf138232cd657a5dcec1b44de752e.png" width="32%"/>
-<img src="https://getstream.io/video/docs/assets/images/webrtc_streaming-e91c93ccd1313ca07bf897b7398e1e0e.png" width="32%"/>
-<img src="https://getstream.io/video/docs/assets/images/incoming_call_screen-be7fa02cbcea5f166a1952e0eb046e30.png" width="32%"/>
+<img src="readme-assets/readme_usecase.png" alt="Stream Video for Flutter Preview image" style="box-shadow: 0 3px 10px rgb(0 0 0 / 0.2)" />
 </p>
 
 ## 👩‍💻 Free for Makers 👨‍💻
