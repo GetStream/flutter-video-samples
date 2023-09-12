@@ -10,8 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  stream_chat_flutter: ^6.8.1
-  stream_video_flutter: 0.0.3
+  stream_chat_flutter: ^6.10.0
+  stream_video_flutter: 0.0.4
 
 dependency_overrides:
   rate_limiter: ^1.0.0
