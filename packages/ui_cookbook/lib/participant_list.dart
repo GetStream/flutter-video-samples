@@ -2,10 +2,16 @@ import 'dart:async';
 
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
-import 'package:stream_video/stream_video.dart';
+import 'package:stream_video_flutter/stream_video_flutter.dart';
 
 import 'env/env.dart';
 
+/// [ParticipantListScreen] displays the user's currently on a call and displays
+/// their microphone state in real-time.
+///
+/// This is possible using a [StreamBuilder] to listen to the ongoing
+/// call's [CallState]. As the attributes of users on a call changes, it is
+/// propagated via the `CallState`.
 class ParticipantListScreen extends StatefulWidget {
   const ParticipantListScreen({super.key, required this.call});
 
@@ -16,39 +22,34 @@ class ParticipantListScreen extends StatefulWidget {
 }
 
 class _ParticipantListScreenState extends State<ParticipantListScreen> {
-  late CallState _callState;
   StreamSubscription<CallState>? _subscription;
 
   @override
   void initState() {
-    widget.call.connect();
-
-    _callState = widget.call.state.value;
-    _subscription = widget.call.state.listen((callState) {
-      setState(() {
-        _callState = callState;
-      });
-    });
-
     super.initState();
+    widget.call.connect();
   }
 
   @override
   void dispose() {
     _subscription?.cancel();
+    widget.call.end();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final callParticipants = _callState.callParticipants;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Participant List'),
       ),
-      body: _callState.status.isConnected
-          ? Column(
+      body: StreamBuilder<CallState>(
+        stream: widget.call.state.valueStream,
+        initialData: widget.call.state.value,
+        builder: (context, snapshot) {
+          if (snapshot.data != null && snapshot.data!.status.isConnected) {
+            final callParticipants = snapshot.data!.callParticipants;
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Expanded(
@@ -58,29 +59,47 @@ class _ParticipantListScreenState extends State<ParticipantListScreen> {
                 Expanded(
                   child: ColoredBox(
                     color: Colors.black87,
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 16,
-                      ),
-                      itemBuilder: (context, index) {
-                        return CallParticipantWidget(
-                          callParticipantState: callParticipants[index],
-                        );
-                      },
-                      separatorBuilder: (_, __) => const SizedBox(width: 8),
-                      itemCount: callParticipants.length,
-                      scrollDirection: Axis.horizontal,
-                    ),
+                    child: StreamBuilder<CallState>(
+                        stream: widget.call.state.valueStream,
+                        initialData: widget.call.state.value,
+                        builder: (context, snapshot) {
+                          return ListView.separated(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 16,
+                            ),
+                            itemBuilder: (context, index) {
+                              return CallParticipantWidget(
+                                callParticipantState: callParticipants[index],
+                              );
+                            },
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 8),
+                            itemCount: callParticipants.length,
+                            scrollDirection: Axis.horizontal,
+                          );
+                        }),
                   ),
                 ),
               ],
-            )
-          : const Center(child: CircularProgressIndicator()),
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
     );
   }
 }
 
+/// Using the [CallParticipantState], we can access properties of each user on
+/// the call. In this simple example, we are rendering a glowing avatar for our
+/// call participants and a microphone indicator to reflect whether the user has
+/// their microphone turned on or not.
+///
+/// For more information, see our written guide https://getstream.io/video/docs/flutter/ui-cookbook/participant-list/
 class CallParticipantWidget extends StatelessWidget {
   const CallParticipantWidget({super.key, required this.callParticipantState});
 

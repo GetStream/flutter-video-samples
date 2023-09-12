@@ -36,13 +36,33 @@ class UICookbook extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomeScreen(),
+      home: HomeScreen(),
     );
   }
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
+
+  final _chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+  final _rnd = Random();
+
+  Future<Call> generateCall(String type, String id) async {
+    final call = StreamVideo.instance.makeCall(
+      type: type,
+      id: id,
+    );
+    await call.getOrCreateCall();
+
+    return call;
+  }
+
+  String generateAlphanumericString(int length) => String.fromCharCodes(
+        Iterable.generate(
+          length,
+          (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length)),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -55,8 +75,10 @@ class HomeScreen extends StatelessWidget {
         children: [
           OptionButton(
             onPressed: () async {
-              final call =
-                  await generateCall('default', generateAlphanumericString(10));
+              final call = await generateCall(
+                'default',
+                generateAlphanumericString(10),
+              );
 
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -93,23 +115,3 @@ class OptionButton extends StatelessWidget {
     );
   }
 }
-
-const _chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
-Random _rnd = Random();
-
-Future<Call> generateCall(String type, String id) async {
-  final call = StreamVideo.instance.makeCall(
-    type: type,
-    id: id,
-  );
-  await call.getOrCreateCall();
-
-  return call;
-}
-
-String generateAlphanumericString(int length) => String.fromCharCodes(
-      Iterable.generate(
-        length,
-        (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length)),
-      ),
-    );
