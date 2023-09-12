@@ -1,90 +1,49 @@
-// lib/env/env.dart
-import 'package:envied/envied.dart';
-
-part 'env.g.dart';
-
-@Envied(path: '../../.env')
+/// Populate this class with the API Key and user data for your application
+/// Tokens can be created using our online generator for development applications.
+/// For Production apps, it is better to use
 abstract class Env {
-  @EnviedField(varName: 'SAMPLE_STREAM_VIDEO_API_KEY')
-  static const String streamVideoApiKey = _Env.streamVideoApiKey;
-  @EnviedField(varName: 'SAMPLE_STREAM_CHAT_API_KEY')
-  static const String streamChatApiKey = _Env.streamChatApiKey;
+  static const String streamVideoApiKey = '';
+  static const String streamChatApiKey = '';
 
-  @EnviedField(varName: 'SAMPLE_USER_00_ID')
-  static const String sampleUserId00 = _Env.sampleUserId00;
-  @EnviedField(varName: 'SAMPLE_USER_00_NAME')
-  static const String sampleUserName00 = _Env.sampleUserName00;
-  @EnviedField(varName: 'SAMPLE_USER_00_ROLE')
-  static const String sampleUserRole00 = _Env.sampleUserRole00;
-  @EnviedField(varName: 'SAMPLE_USER_00_IMAGE')
-  static const String sampleUserImage00 = _Env.sampleUserImage00;
-  @EnviedField(varName: 'SAMPLE_USER_00_VIDEO_TOKEN')
-  static const String sampleUserVideoToken00 = _Env.sampleUserVideoToken00;
-  @EnviedField(varName: 'SAMPLE_USER_00_CHAT_TOKEN')
-  static const String sampleUserChatToken00 = _Env.sampleUserChatToken00;
+  static const String sampleUserId00 = '';
+  static const String sampleUserName00 = '';
+  static const String sampleUserRole00 = '';
+  static const String sampleUserImage00 = '';
+  static const String sampleUserVideoToken00 = '';
+  static const String sampleUserChatToken00 = '';
 
-  @EnviedField(varName: 'SAMPLE_USER_01_ID')
-  static const String sampleUserId01 = _Env.sampleUserId01;
-  @EnviedField(varName: 'SAMPLE_USER_01_NAME')
-  static const String sampleUserName01 = _Env.sampleUserName01;
-  @EnviedField(varName: 'SAMPLE_USER_01_ROLE')
-  static const String sampleUserRole01 = _Env.sampleUserRole01;
-  @EnviedField(varName: 'SAMPLE_USER_01_IMAGE')
-  static const String sampleUserImage01 = _Env.sampleUserImage01;
-  @EnviedField(varName: 'SAMPLE_USER_01_VIDEO_TOKEN')
-  static const String sampleUserVideoToken01 = _Env.sampleUserVideoToken01;
-  @EnviedField(varName: 'SAMPLE_USER_01_CHAT_TOKEN')
-  static const String sampleUserChatToken01 = _Env.sampleUserChatToken01;
+  static const String sampleUserId01 = '';
+  static const String sampleUserName01 = '';
+  static const String sampleUserRole01 = '';
+  static const String sampleUserImage01 = '';
+  static const String sampleUserVideoToken01 = '';
+  static const String sampleUserChatToken01 = '';
 
-  @EnviedField(varName: 'SAMPLE_USER_02_ID')
-  static const String sampleUserId02 = _Env.sampleUserId02;
-  @EnviedField(varName: 'SAMPLE_USER_02_NAME')
-  static const String sampleUserName02 = _Env.sampleUserName02;
-  @EnviedField(varName: 'SAMPLE_USER_02_ROLE')
-  static const String sampleUserRole02 = _Env.sampleUserRole02;
-  @EnviedField(varName: 'SAMPLE_USER_02_IMAGE')
-  static const String sampleUserImage02 = _Env.sampleUserImage02;
-  @EnviedField(varName: 'SAMPLE_USER_02_VIDEO_TOKEN')
-  static const String sampleUserVideoToken02 = _Env.sampleUserVideoToken02;
-  @EnviedField(varName: 'SAMPLE_USER_02_CHAT_TOKEN')
-  static const String sampleUserChatToken02 = _Env.sampleUserChatToken02;
+  static const String sampleUserId02 = '';
+  static const String sampleUserName02 = '';
+  static const String sampleUserRole02 = '';
+  static const String sampleUserImage02 = '';
+  static const String sampleUserVideoToken02 = '';
+  static const String sampleUserChatToken02 = '';
 
-  @EnviedField(varName: 'SAMPLE_USER_03_ID')
-  static const String sampleUserId03 = _Env.sampleUserId03;
-  @EnviedField(varName: 'SAMPLE_USER_03_NAME')
-  static const String sampleUserName03 = _Env.sampleUserName03;
-  @EnviedField(varName: 'SAMPLE_USER_03_ROLE')
-  static const String sampleUserRole03 = _Env.sampleUserRole03;
-  @EnviedField(varName: 'SAMPLE_USER_03_IMAGE')
-  static const String sampleUserImage03 = _Env.sampleUserImage03;
-  @EnviedField(varName: 'SAMPLE_USER_03_VIDEO_TOKEN')
-  static const String sampleUserVideoToken03 = _Env.sampleUserVideoToken03;
-  @EnviedField(varName: 'SAMPLE_USER_03_CHAT_TOKEN')
-  static const String sampleUserChatToken03 = _Env.sampleUserChatToken03;
+  static const String sampleUserId03 = '';
+  static const String sampleUserName03 = '';
+  static const String sampleUserRole03 = '';
+  static const String sampleUserImage03 = '';
+  static const String sampleUserVideoToken03 = '';
+  static const String sampleUserChatToken03 = '';
 
-  @EnviedField(varName: 'SAMPLE_USER_04_ID')
-  static const String sampleUserId04 = _Env.sampleUserId04;
-  @EnviedField(varName: 'SAMPLE_USER_04_NAME')
-  static const String sampleUserName04 = _Env.sampleUserName04;
-  @EnviedField(varName: 'SAMPLE_USER_04_ROLE')
-  static const String sampleUserRole04 = _Env.sampleUserRole04;
-  @EnviedField(varName: 'SAMPLE_USER_04_IMAGE')
-  static const String sampleUserImage04 = _Env.sampleUserImage04;
-  @EnviedField(varName: 'SAMPLE_USER_04_VIDEO_TOKEN')
-  static const String sampleUserVideoToken04 = _Env.sampleUserVideoToken04;
-  @EnviedField(varName: 'SAMPLE_USER_04_CHAT_TOKEN')
-  static const String sampleUserChatToken04 = _Env.sampleUserChatToken04;
+  static const String sampleUserId04 = '';
+  static const String sampleUserName04 = '';
+  static const String sampleUserRole04 = '';
+  static const String sampleUserImage04 = '';
+  static const String sampleUserVideoToken04 = '';
+  static const String sampleUserChatToken04 = '';
 
-  @EnviedField(varName: 'SAMPLE_USER_05_ID')
-  static const String sampleUserId05 = _Env.sampleUserId05;
-  @EnviedField(varName: 'SAMPLE_USER_05_NAME')
-  static const String sampleUserName05 = _Env.sampleUserName05;
-  @EnviedField(varName: 'SAMPLE_USER_05_ROLE')
-  static const String sampleUserRole05 = _Env.sampleUserRole05;
-  @EnviedField(varName: 'SAMPLE_USER_05_IMAGE')
-  static const String sampleUserImage05 = _Env.sampleUserImage05;
-  @EnviedField(varName: 'SAMPLE_USER_05_VIDEO_TOKEN')
-  static const String sampleUserVideoToken05 = _Env.sampleUserVideoToken05;
-  @EnviedField(varName: 'SAMPLE_USER_05_CHAT_TOKEN')
-  static const String sampleUserChatToken05 = _Env.sampleUserChatToken05;
+  static const String sampleUserId05 = '';
+  static const String sampleUserName05 = '';
+  static const String sampleUserRole05 = '';
+  static const String sampleUserImage05 = '';
+  static const String sampleUserVideoToken05 = '';
+  static const String sampleUserChatToken05 = '';
 }
