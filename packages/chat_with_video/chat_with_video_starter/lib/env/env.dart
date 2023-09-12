@@ -1,5 +1,3 @@
-import 'package:envied/envied.dart';
-
 /// Populate this class with the API Key and user data for your application
 /// Tokens can be created using our online generator for development applications.
 /// For Production apps, it is better to use 
