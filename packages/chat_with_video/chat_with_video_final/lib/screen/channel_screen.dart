@@ -30,7 +30,8 @@ class ChannelScreen extends StatelessWidget {
             child: StreamMessageListView(
               messageBuilder: (context, details, messages, defaultMessage) {
                 return defaultMessage.copyWith(
-                    customAttachmentBuilders: _customAttachmentBuilders());
+                  customAttachmentBuilders: _customAttachmentBuilders(),
+                );
               },
             ),
           ),

@@ -69,7 +69,9 @@ class CallAttachment extends StatelessWidget {
                       type: callType,
                       id: callId,
                     );
-                    await call.getOrCreateCall(ringing: true);
+                    await call.getOrCreateCall(
+                      ringing: true,
+                    );
 
                     Navigator.push(
                       context,
