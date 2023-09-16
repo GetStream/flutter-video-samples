@@ -84,8 +84,20 @@ class _PermissionRequestsExampleState extends State<PermissionRequestsExample> {
                 )
         ],
       ),
-      body: StreamCallContainer(
-        call: widget.call,
+      body: StreamBuilder<CallState>(
+        stream: widget.call.state.valueStream,
+        initialData: widget.call.state.value,
+        builder: (context, snapshot) {
+          return StreamCallContent(
+            call: widget.call,
+            callState: snapshot.data!,
+            callAppBarBuilder: (context, call, callState) =>
+                const PreferredSize(
+              preferredSize: Size.zero,
+              child: SizedBox(),
+            ),
+          );
+        },
       ),
     );
   }
