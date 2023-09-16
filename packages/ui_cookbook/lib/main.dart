@@ -3,11 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 import 'package:ui_cookbook/samples/permissions_request_sample.dart';
+import 'package:ui_cookbook/samples/reactions_sample.dart';
 
 import 'env/env.dart';
 import 'samples/participant_list.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   /// Initialize Stream Video SDK.
   StreamVideo.init(
     Env.streamVideoApiKey,
@@ -111,6 +113,25 @@ class HomeScreen extends StatelessWidget {
               );
             },
             label: 'Permission Requests',
+          ),
+          OptionButton(
+            onPressed: () async {
+              final call = await generateCall(
+                'default',
+                generateAlphanumericString(10),
+              );
+
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) {
+                    return ReactionsExample(
+                      call: call,
+                    );
+                  },
+                ),
+              );
+            },
+            label: 'Reactions',
           ),
         ],
       ),
