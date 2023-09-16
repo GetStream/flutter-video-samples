@@ -34,6 +34,10 @@ class _ReactionsExampleState extends State<ReactionsExample> {
     super.dispose();
   }
 
+  /// Send a reaction to others on the call.
+  ///
+  /// The reaction type can be anything. Emoji code is optional, see https://www.webfx.com/tools/emoji-cheat-sheet/
+  /// Each reaction can also include a Map of custom data.
   Future<void> sendCallReaction() async {
     await widget.call.sendReaction(
       reactionType: 'raised-hand',
@@ -41,6 +45,7 @@ class _ReactionsExampleState extends State<ReactionsExample> {
     );
   }
 
+  /// To retrieve a list of reactions from users on the call, [getCurrentReactions] can be called.
   Future<void> listenForReactions() async {
     final reactions = widget.call.getCurrentReactions();
     print(reactions);
