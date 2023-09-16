@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:stream_video/stream_video.dart';
-import 'package:ui_cookbook/permissions_request_sample.dart';
+import 'package:stream_video_flutter/stream_video_flutter.dart';
+import 'package:ui_cookbook/samples/permissions_request_sample.dart';
 
 import 'env/env.dart';
-import 'participant_list.dart';
+import 'samples/participant_list.dart';
 
 void main() async {
   /// Initialize Stream Video SDK.
