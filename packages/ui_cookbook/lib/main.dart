@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:stream_video/stream_video.dart';
+import 'package:ui_cookbook/permissions_request_sample.dart';
 
 import 'env/env.dart';
 import 'participant_list.dart';
@@ -91,6 +92,25 @@ class HomeScreen extends StatelessWidget {
               );
             },
             label: 'Participant List',
+          ),
+          OptionButton(
+            onPressed: () async {
+              final call = await generateCall(
+                'audio_room',
+                generateAlphanumericString(10),
+              );
+
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) {
+                    return PermissionRequestsExample(
+                      call: call,
+                    );
+                  },
+                ),
+              );
+            },
+            label: 'Permission Requests',
           ),
         ],
       ),
