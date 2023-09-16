@@ -32,8 +32,16 @@ class _PermissionRequestsExampleState extends State<PermissionRequestsExample> {
   void initState() {
     super.initState();
     startCall();
-    widget.call.onPermissionRequest = (CoordinatorCallPermissionRequestEvent permissionRequestEvent){
+
+    /// The [onPermissionRequest] handler can be used to be notified of new requests from users in the call.
+    /// [CoordinatorCallPermissionRequestEvent] contains the user requesting permissions along with a list
+    /// containing the different capabilities they would like granted.
+    widget.call.onPermissionRequest =
+        (CoordinatorCallPermissionRequestEvent permissionRequestEvent) {
       final uid = permissionRequestEvent.user.id;
+
+      /// For more complex applications, a user may request one or more permission at the same time. In those cases,
+      /// the full range of permissions can be retrieved from the `permissions` list.
       final permission = permissionRequestEvent.permissions;
       grantSpeakingPermission(uid);
     };
@@ -45,10 +53,13 @@ class _PermissionRequestsExampleState extends State<PermissionRequestsExample> {
     super.dispose();
   }
 
+  /// To request permissions, the [Call] object includes the method [requestPermissions]
+  /// which allows us to pass a list of [CallPermission] we would like granted during the call.
   Future<void> requestSpeakingPermission() async {
     await widget.call.requestPermissions([CallPermission.sendAudio]);
   }
 
+  /// Once a permission request is received, it can be granted using [grantPermissions] or revoked using [revokePermissions]
   Future<void> grantSpeakingPermission(String userID) async {
     await widget.call.grantPermissions(
       userId: userID,
