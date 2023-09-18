@@ -4,7 +4,7 @@ import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 
-import 'env/env.dart';
+import '../env/env.dart';
 
 /// [ParticipantListScreen] displays the user's currently on a call and displays
 /// their microphone state in real-time.
