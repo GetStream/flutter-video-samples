@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
+import 'package:ui_cookbook/samples/livestream_sample.dart';
 import 'package:ui_cookbook/samples/permissions_request_sample.dart';
 import 'package:ui_cookbook/samples/reactions_sample.dart';
 
@@ -10,6 +11,7 @@ import 'samples/participant_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   /// Initialize Stream Video SDK.
   StreamVideo.init(
     Env.streamVideoApiKey,
@@ -132,6 +134,24 @@ class HomeScreen extends StatelessWidget {
               );
             },
             label: 'Reactions',
+          ),
+          OptionButton(
+            onPressed: () async {
+              final call = await generateCall(
+                'livestream',
+                'livestream_016d50ef-0274-49b1-aa7b-d1adec890011',
+              );
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) {
+                    return LiveStreamSample(
+                      call: call,
+                    );
+                  },
+                ),
+              );
+            },
+            label: 'Viewing a Livestream',
           ),
         ],
       ),
