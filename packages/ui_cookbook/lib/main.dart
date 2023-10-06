@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
+import 'package:ui_cookbook/samples/audio_indicator.dart';
+import 'package:ui_cookbook/samples/network_quality_indicator.dart';
 import 'package:ui_cookbook/samples/permissions_request_sample.dart';
 import 'package:ui_cookbook/samples/reactions_sample.dart';
 
@@ -132,6 +134,44 @@ class HomeScreen extends StatelessWidget {
               );
             },
             label: 'Reactions',
+          ),
+          OptionButton(
+            onPressed: () async {
+              final call = await generateCall(
+                'default',
+                generateAlphanumericString(10),
+              );
+
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) {
+                    return AudioIndicatorExample(
+                      call: call,
+                    );
+                  },
+                ),
+              );
+            },
+            label: 'Audio Indicator',
+          ),
+          OptionButton(
+            onPressed: () async {
+              final call = await generateCall(
+                'default',
+                generateAlphanumericString(10),
+              );
+
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) {
+                    return NetworkQualityIndicatorExample(
+                      call: call,
+                    );
+                  },
+                ),
+              );
+            },
+            label: 'Network Quality Indicator',
           ),
         ],
       ),
