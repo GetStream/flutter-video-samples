@@ -1,5 +1,3 @@
-# chat_with_video_call
-
 A working sample that integrates Stream Video calling into a Stream Chat experience. It demonstrates starting and joining video calls directly from chat channels, including core call controls and a simple UI.
 
 ## Cookbook

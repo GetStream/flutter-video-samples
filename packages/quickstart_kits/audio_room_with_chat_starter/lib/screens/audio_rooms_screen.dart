@@ -1,13 +1,9 @@
-import 'package:audio_room_with_chat/screens/audio_room_screen.dart';
+import 'package:audio_room_with_chat_starter/screens/audio_room_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart';
-import 'package:stream_video_flutter/stream_video_flutter.dart';
 
+/// Displays the list of audio rooms and allows creating/joining one.
 class AudioRoomsScreen extends StatefulWidget {
-  const AudioRoomsScreen({
-    super.key,
-    required this.onLogoutPressed,
-  });
+  const AudioRoomsScreen({super.key, required this.onLogoutPressed});
 
   final VoidCallback onLogoutPressed;
 
@@ -16,61 +12,8 @@ class AudioRoomsScreen extends StatefulWidget {
 }
 
 class _AudioRoomsScreenState extends State<AudioRoomsScreen> {
-  late Future<QueriedCalls> _roomsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _roomsFuture = fetchAudioRooms();
-  }
-
   void _reloadRooms() {
-    setState(() {
-      _roomsFuture = fetchAudioRooms();
-    });
-  }
-
-  Future<QueriedCalls> fetchAudioRooms() async {
-    final result = await StreamVideo.instance.queryCalls(
-      filterConditions: {
-        "type": 'audio_room',
-        "live": true,
-      },
-    );
-
-    return result.getDataOrNull() ?? QueriedCalls(calls: []);
-  }
-
-  Future<Call> createAudioRoom() async {
-    final call = StreamVideo.instance.makeCall(
-      id: 'audio_room_${DateTime.now().millisecondsSinceEpoch}',
-      callType: StreamCallType.audioRoom(),
-    );
-
-    await call.getOrCreate(
-      custom: {
-        'name': 'Audio Room ${DateTime.now().millisecondsSinceEpoch}',
-      },
-    );
-
-    return call;
-  }
-
-  Future<Channel> createChatChannel(
-    Call call, {
-    bool create = false,
-  }) async {
-    final channel = StreamChat.of(context).client.channel(
-      "livestream",
-      id: call.callCid.id,
-    );
-
-    if (create) {
-      await channel.create();
-    }
-
-    await channel.watch();
-    return channel;
+    /// TODO: Implement audio rooms querying and reloading.
   }
 
   @override
@@ -88,8 +31,9 @@ class _AudioRoomsScreenState extends State<AudioRoomsScreen> {
         ],
         automaticallyImplyLeading: false,
       ),
-      body: FutureBuilder<QueriedCalls>(
-        future: _roomsFuture,
+      body: FutureBuilder(
+        /// TODO: Replace with actual future fetching audio rooms.
+        future: Future.value(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -99,7 +43,7 @@ class _AudioRoomsScreenState extends State<AudioRoomsScreen> {
             return _ErrorState(onRetry: _reloadRooms, error: snapshot.error);
           }
 
-          final calls = snapshot.data?.calls;
+          final calls = [];
           if (calls == null || calls.isEmpty) {
             return _EmptyState(onRefresh: _reloadRooms);
           }
@@ -119,9 +63,9 @@ class _AudioRoomsScreenState extends State<AudioRoomsScreen> {
                 return ListTile(
                   leading: const CircleAvatar(child: Icon(Icons.mic_none)),
                   title: Text(name),
-                  onTap: () => _joinCall(call.cid),
+                  onTap: () => _joinCall(),
                   trailing: TextButton.icon(
-                    onPressed: () => _joinCall(call.cid),
+                    onPressed: () => _joinCall(),
                     icon: const Icon(Icons.meeting_room_outlined),
                     label: const Text('Join'),
                   ),
@@ -140,42 +84,23 @@ class _AudioRoomsScreenState extends State<AudioRoomsScreen> {
   }
 
   Future<void> _onCreatePressed() async {
-    final call = await createAudioRoom();
-    final channel = await createChatChannel(call, create: true);
+    /// TODO: Create audio room call and its chat channel, then navigate.
     if (!mounted) return;
-
     await Navigator.of(context).push(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (_) => AudioRoomScreen(
-          audioRoomCall: call,
-          chatChannel: channel,
-        ),
+        builder: (_) => const AudioRoomScreen(),
       ),
     );
-
-    if (!mounted) return;
-    _reloadRooms();
   }
 
-  Future<void> _joinCall(StreamCallCid callCid) async {
-    final call = StreamVideo.instance.makeCall(
-      callType: callCid.type,
-      id: callCid.id,
-    );
-
-    await call.getOrCreate();
-    final channel = await createChatChannel(call);
-
+  Future<void> _joinCall() async {
+    /// TODO: Join selected call and navigate to AudioRoomScreen.
     if (!mounted) return;
-
     await Navigator.of(context).push(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (_) => AudioRoomScreen(
-          audioRoomCall: call,
-          chatChannel: channel,
-        ),
+        builder: (_) => const AudioRoomScreen(),
       ),
     );
   }
