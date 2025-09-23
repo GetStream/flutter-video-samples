@@ -17,9 +17,11 @@ Stream provides UI components and state handling that make it easy to build vide
 ## 📕 Tutorials
 With Stream’s video components, you can use their SDK to build in-app video calling, audio rooms, audio calls, or live streaming. The best place to get started is with their tutorials:
 
-- **[Video & Audio Calling Tutorial](https://getstream.io/video/docs/flutter/video-calling-guide/)**
-- **[Audio Rooms Tutorial](https://getstream.io/video/docs/flutter/audio-rooms/)**
-- **[Livestreaming Tutorial](https://getstream.io/video/docs/flutter/livestreaming/)**
+- **[Video & Audio Calling Tutorial](https://getstream.io/video/sdk/flutter/tutorial/video-calling/)**
+- **[Audio Rooms Tutorial](https://getstream.io/video/sdk/flutter/tutorial/audio-room/)**
+- **[Livestreaming Tutorial](https://getstream.io/video/sdk/flutter/tutorial/livestreaming/)**
+- **[Ringing Tutorial](https://getstream.io/video/sdk/flutter/tutorial/ringing/)**
+- **[AI Voice Assistant Tutorial](https://getstream.io/video/sdk/flutter/tutorial/ai-voice-assistant/)**
 
 If you’re interested in customizing the UI components for the Video SDK, check out the [UI Component Docs](https://getstream.io/video/docs/flutter/ui-components-overview/).
 
