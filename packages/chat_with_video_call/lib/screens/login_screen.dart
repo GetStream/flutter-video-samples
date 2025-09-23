@@ -61,7 +61,7 @@ class LoginScreen extends StatelessWidget {
   /// Connects the current user to the Video API.
   Future<void> _connectVideoUser(SampleUser user) async {
     final client = StreamVideo(
-      Env.streamVideoApiKey,
+      Env.streamApiKey,
       options: StreamVideoOptions(logPriority: Priority.debug),
       user: user.toVideoUser(),
       userToken: user.token,

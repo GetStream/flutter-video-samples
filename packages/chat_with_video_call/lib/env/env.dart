@@ -2,8 +2,7 @@
 /// For development, you can generate user tokens with our online tool: https://getstream.io/chat/docs/flutter-dart/tokens_and_authentication/#manually-generating-tokens
 /// For production apps, generate tokens on your server rather than in the client.
 abstract class Env {
-  static const String streamVideoApiKey = 'mmhfdzb5evj2';
-  static const String streamChatApiKey = 'mmhfdzb5evj2';
+  static const String streamApiKey = '';
 
   static const String sampleUserId00 = 'alice_johnson';
   static const String sampleUserName00 = 'Alice Johnson';

@@ -5,7 +5,7 @@ import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 void main() {
   final client = StreamChatClient(
-    Env.streamChatApiKey,
+    Env.streamApiKey,
     logLevel: Level.INFO,
   );
 
