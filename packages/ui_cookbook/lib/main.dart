@@ -12,20 +12,16 @@ import 'samples/participant_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  /// Initialize Stream Video SDK.
-  StreamVideo.init(
-    Env.streamVideoApiKey,
-    logPriority: Priority.info,
-  );
 
-  await StreamVideo.instance.connectUser(
-    const UserInfo(
-      id: Env.sampleUserId00,
-      role: Env.sampleUserRole00,
+  /// Initialize Stream Video SDK.
+  StreamVideo(
+    Env.streamVideoApiKey,
+    user: User.regular(
+      userId: Env.sampleUserId00,
       name: Env.sampleUserName00,
       image: Env.sampleUserImage00,
+      role: Env.sampleUserRole00,
     ),
-    Env.sampleUserVideoToken00,
   );
 
   runApp(const UICookbook());
@@ -54,11 +50,11 @@ class HomeScreen extends StatelessWidget {
 
   Future<Call> generateCall(String type, String id) async {
     final call = StreamVideo.instance.makeCall(
-      type: type,
+      callType: StreamCallType.defaultType(),
       id: id,
     );
-    await call.getOrCreateCall();
 
+    await call.getOrCreate();
     return call;
   }
 

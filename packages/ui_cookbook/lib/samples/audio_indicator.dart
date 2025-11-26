@@ -14,7 +14,7 @@ class AudioIndicatorExample extends StatefulWidget {
 
 class _AudioIndicatorExampleState extends State<AudioIndicatorExample> {
   Future<void> startCall() async {
-    await widget.call.connect();
+    await widget.call.join();
   }
 
   Future<void> endCall() async {
@@ -45,25 +45,25 @@ class _AudioIndicatorExampleState extends State<AudioIndicatorExample> {
         builder: (context, snapshot) {
           return StreamCallContent(
             call: widget.call,
-            callState: snapshot.data!,
-            callAppBarBuilder: (context, call, callState) =>
-            const PreferredSize(
+            callAppBarWidgetBuilder: (
+              context,
+              call,
+            ) =>
+                const PreferredSize(
               preferredSize: Size.zero,
               child: SizedBox(),
             ),
-            callParticipantsBuilder: (
-                BuildContext context,
-                Call call,
-                CallState callState,
-                ) {
+            callParticipantsWidgetBuilder: (
+              BuildContext context,
+              Call call,
+            ) {
               return StreamCallParticipants(
                 call: call,
-                participants: callState.callParticipants,
                 callParticipantBuilder: (
-                    BuildContext context,
-                    Call call,
-                    CallParticipantState participantState,
-                    ) {
+                  BuildContext context,
+                  Call call,
+                  CallParticipantState participantState,
+                ) {
                   return StreamCallParticipant(
                     call: call,
                     participant: participantState,

@@ -9,8 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  stream_chat_flutter: ^9.16.0
-  stream_video_flutter: ^0.10.4
+  stream_chat_flutter: ^9.20.0
+  stream_video_flutter: ^1.0.0
 
 dev_dependencies:
   flutter_lints: ^5.0.0

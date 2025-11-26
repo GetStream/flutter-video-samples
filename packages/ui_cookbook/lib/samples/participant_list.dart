@@ -27,7 +27,7 @@ class _ParticipantListScreenState extends State<ParticipantListScreen> {
   @override
   void initState() {
     super.initState();
-    widget.call.connect();
+    widget.call.join();
   }
 
   @override

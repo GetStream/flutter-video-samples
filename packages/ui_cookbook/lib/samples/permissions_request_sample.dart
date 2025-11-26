@@ -17,7 +17,7 @@ class _PermissionRequestsExampleState extends State<PermissionRequestsExample> {
   bool canSpeak = false;
 
   Future<void> startCall() async {
-    await widget.call.connect();
+    await widget.call.join();
     await widget.call.goLive();
     canSpeak = widget.call.state.value.ownCapabilities
         .contains(CallPermission.sendAudio);
@@ -37,7 +37,7 @@ class _PermissionRequestsExampleState extends State<PermissionRequestsExample> {
     /// [CoordinatorCallPermissionRequestEvent] contains the user requesting permissions along with a list
     /// containing the different capabilities they would like granted.
     widget.call.onPermissionRequest =
-        (CoordinatorCallPermissionRequestEvent permissionRequestEvent) {
+        (StreamCallPermissionRequestEvent permissionRequestEvent) {
       final uid = permissionRequestEvent.user.id;
 
       /// For more complex applications, a user may request one or more permission at the same time. In those cases,
@@ -90,9 +90,7 @@ class _PermissionRequestsExampleState extends State<PermissionRequestsExample> {
         builder: (context, snapshot) {
           return StreamCallContent(
             call: widget.call,
-            callState: snapshot.data!,
-            callAppBarBuilder: (context, call, callState) =>
-                const PreferredSize(
+            callAppBarWidgetBuilder: (context, call) => const PreferredSize(
               preferredSize: Size.zero,
               child: SizedBox(),
             ),

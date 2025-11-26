@@ -14,7 +14,7 @@ class ReactionsExample extends StatefulWidget {
 
 class _ReactionsExampleState extends State<ReactionsExample> {
   Future<void> startCall() async {
-    await widget.call.connect();
+    await widget.call.join();
   }
 
   Future<void> endCall() async {
@@ -69,8 +69,10 @@ class _ReactionsExampleState extends State<ReactionsExample> {
         builder: (context, snapshot) {
           return StreamCallContent(
             call: widget.call,
-            callState: snapshot.data!,
-            callAppBarBuilder: (context, call, callState) =>
+            callAppBarWidgetBuilder: (
+              context,
+              call,
+            ) =>
                 const PreferredSize(
               preferredSize: Size.zero,
               child: SizedBox(),
