@@ -6,7 +6,7 @@ import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 
 class ChannelScreen extends StatelessWidget {
-  const ChannelScreen({Key? key}) : super(key: key);
+  const ChannelScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

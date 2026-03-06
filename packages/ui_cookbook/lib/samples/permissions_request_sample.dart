@@ -42,7 +42,6 @@ class _PermissionRequestsExampleState extends State<PermissionRequestsExample> {
 
       /// For more complex applications, a user may request one or more permission at the same time. In those cases,
       /// the full range of permissions can be retrieved from the `permissions` list.
-      final permission = permissionRequestEvent.permissions;
       grantSpeakingPermission(uid);
     };
   }

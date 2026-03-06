@@ -1,11 +1,10 @@
 import 'package:chat_with_video_call/app_config.dart';
-import 'package:chat_with_video_call/sample_user.dart';
 import 'package:chat_with_video_call/screens/channel_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class ChannelListScreen extends StatefulWidget {
-  const ChannelListScreen({Key? key, required this.onLogout}) : super(key: key);
+  const ChannelListScreen({super.key, required this.onLogout});
 
   final VoidCallback onLogout;
 

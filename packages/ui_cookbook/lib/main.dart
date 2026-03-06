@@ -81,6 +81,7 @@ class HomeScreen extends StatelessWidget {
                 generateAlphanumericString(10),
               );
 
+              if (!context.mounted) return;
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) {
@@ -100,6 +101,7 @@ class HomeScreen extends StatelessWidget {
                 generateAlphanumericString(10),
               );
 
+              if (!context.mounted) return;
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) {
@@ -119,6 +121,7 @@ class HomeScreen extends StatelessWidget {
                 generateAlphanumericString(10),
               );
 
+              if (!context.mounted) return;
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) {
@@ -138,6 +141,7 @@ class HomeScreen extends StatelessWidget {
                 generateAlphanumericString(10),
               );
 
+              if (!context.mounted) return;
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) {
@@ -157,6 +161,7 @@ class HomeScreen extends StatelessWidget {
                 generateAlphanumericString(10),
               );
 
+              if (!context.mounted) return;
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) {

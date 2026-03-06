@@ -48,7 +48,7 @@ class _ReactionsExampleState extends State<ReactionsExample> {
   /// To retrieve a list of reactions from users on the call, [getCurrentReactions] can be called.
   Future<void> listenForReactions() async {
     final reactions = widget.call.getCurrentReactions();
-    print(reactions);
+    debugPrint('$reactions');
   }
 
   @override

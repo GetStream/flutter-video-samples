@@ -44,7 +44,7 @@ class _AudioRoomsScreenState extends State<AudioRoomsScreen> {
           }
 
           final calls = [];
-          if (calls == null || calls.isEmpty) {
+          if (calls.isEmpty) {
             return _EmptyState(onRefresh: _reloadRooms);
           }
 

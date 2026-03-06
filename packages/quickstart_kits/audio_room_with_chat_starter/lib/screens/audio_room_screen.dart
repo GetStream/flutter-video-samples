@@ -1,5 +1,3 @@
-import 'package:audio_room_with_chat_starter/screens/widgets/audio_room_actions.dart';
-import 'package:audio_room_with_chat_starter/screens/widgets/chat_sheet.dart';
 import 'package:flutter/material.dart';
 
 /// Placeholder for the in-call audio room UI with chat.
