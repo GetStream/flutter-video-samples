@@ -1,6 +1,10 @@
 import 'env/env.dart';
 import 'sample_user.dart';
 
+// IMPORTANT: The predefined sample users in this app rely on demo credentials.
+// Treat those credentials and any hardcoded room, channel, or call IDs as
+// publicly accessible values. If you reuse them, other people running the
+// sample may join the same calls or conversations.
 final sampleUsers = <SampleUser>[
   const SampleUser(
     id: Env.sampleUserId00,

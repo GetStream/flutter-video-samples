@@ -4,6 +4,9 @@
 
 The app demonstrates video calling with ringing (incoming call notifications), plus chat channels and push notifications. Configure the values in `lib/app_config.dart` and the project files below so the app works with your Stream app and Firebase project.
 
+> [!IMPORTANT]
+> The predefined API key, user credentials, and any hardcoded call IDs or channel IDs in this sample should be treated as publicly accessible demo values. If you reuse them, other people running the sample may join the same calls or conversations.
+
 ## Project Setup Guide
 
 ### Prerequisites

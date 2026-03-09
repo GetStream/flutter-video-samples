@@ -29,6 +29,11 @@
 ///      to match your Stream Dashboard configuration
 ///    - Generate new user tokens for your test users using the Stream token generator:
 ///      https://getstream.io/chat/docs/flutter-dart/tokens_and_authentication/#manually-generating-tokens
+///
+/// IMPORTANT: The predefined API key, user credentials, push provider names,
+/// and any hardcoded call or channel identifiers in this sample should be
+/// treated as publicly accessible demo values. If you reuse them, other
+/// people running the sample may join the same calls or conversations.
 class AppConfig {
   AppConfig._();
 

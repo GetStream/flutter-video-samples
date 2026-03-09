@@ -1,6 +1,11 @@
 /// Replace the values below with your own Stream API keys and sample user data if you want to test your Stream app.
 /// For development, you can generate user tokens with our online tool: https://getstream.io/chat/docs/flutter-dart/tokens_and_authentication/#manually-generating-tokens
 /// For production apps, generate tokens on your server rather than in the client.
+///
+/// IMPORTANT: The predefined API key, sample users, tokens, and any hardcoded
+/// room, channel, or call IDs in this starter should be treated as publicly
+/// accessible demo values. If you reuse them, other people running the sample
+/// may join the same calls or conversations.
 abstract class Env {
   static const String streamApiKey = 'mmhfdzb5evj2';
 
