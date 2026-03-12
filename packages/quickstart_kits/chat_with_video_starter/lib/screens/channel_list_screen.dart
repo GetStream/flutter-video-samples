@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ChannelListScreen extends StatefulWidget {
-  const ChannelListScreen({Key? key, required this.onLogout}) : super(key: key);
+  const ChannelListScreen({super.key, required this.onLogout});
 
   final VoidCallback onLogout;
 

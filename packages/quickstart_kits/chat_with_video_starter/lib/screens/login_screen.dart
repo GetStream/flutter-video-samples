@@ -1,11 +1,11 @@
+// ignore_for_file: unused_element
 import 'package:chat_with_video_starter/sample_user.dart';
 import 'package:flutter/material.dart';
 
 import '../app_config.dart';
-import 'channel_list_screen.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class LoginScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => Material(
-          child: Container(child: Center(child: Text("Let's start building!"))),
+          child: Center(child: Text("Let's start building!")),
         ),
       ),
     );

@@ -18,9 +18,9 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({
-    Key? key,
+    super.key,
     required this.chatClient,
-  }) : super(key: key);
+  });
 
   final StreamChatClient chatClient;
 
