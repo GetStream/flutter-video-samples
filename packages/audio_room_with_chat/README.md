@@ -1,5 +1,8 @@
 A working sample that integrates Stream Audio Rooms with a Stream Chat experience. It demonstrates creating and joining live audio rooms with in-room chat, permission requests, and a simple host/participant UI.
 
+> [!IMPORTANT]
+> The predefined API key, user credentials, and any hardcoded room, channel, or call IDs in this sample should be treated as publicly accessible demo values. If you reuse them, other people running the sample may join the same audio rooms or conversations.
+
 ## Cookbook
 Looking for a step‑by‑step guide? Check out the cookbook:
 

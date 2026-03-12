@@ -1,5 +1,8 @@
 A working sample that integrates Stream Video calling into a Stream Chat experience. It demonstrates starting and joining video calls directly from chat channels, including core call controls and a simple UI.
 
+> [!IMPORTANT]
+> The predefined API key, user credentials, and any hardcoded room, channel, or call IDs in this sample should be treated as publicly accessible demo values. If you reuse them, other people running the sample may join the same calls or conversations.
+
 ## Cookbook
 Looking for a step‑by‑step guide? Check out the cookbook entry:
 
