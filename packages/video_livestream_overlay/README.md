@@ -9,13 +9,13 @@ A livestreaming sample app for the [Stream Video Flutter SDK](https://pub.dev/pa
 
 This sample combines three things:
 
-1. **The [livestreaming tutorial](https://getstream.io/video/sdk/flutter/tutorial/livestreaming/)** — login, go live as a host, watch as a viewer.
-2. **The Stream Video Filters API** (`StreamVideoEffectsManager.applyCustomEffect`) — registers a named custom effect against the publisher's local track.
-3. **A native video filter** (Android `BitmapVideoFilter` + iOS `VideoFilter` from `stream_video_filters`) — draws the scoreboard on each captured frame before encoding.
+1. **Livestreaming with the Stream Video Flutter SDK**, loosely based on the [livestreaming tutorial](https://getstream.io/video/sdk/flutter/tutorial/livestreaming/). Hosts can go live and viewers can watch.
+2. **The Stream Video Filters API** (`StreamVideoEffectsManager.applyCustomEffect`), which registers a named custom effect against the publisher's local track.
+3. **A native video filter** (Android `BitmapVideoFilter` + iOS `VideoFilter` from `stream_video_filters`) that draws the scoreboard on each captured frame before encoding.
 
-Flutter pushes the state (scores, clock, mirror flag) to native over a method channel; the native filter reads a consistent snapshot once per frame. The overlay updates within one captured frame of a state change.
+Flutter pushes the state (scores, clock, mirror flag) to native over a method channel. The native filter reads a consistent snapshot once per frame. The overlay updates within one captured frame of a state change.
 
-This is the same approach used in the Stream dogfooding app — adapted here into a minimal, standalone sample.
+This is the same approach used in the Stream dogfooding app, adapted here into a minimal, standalone sample.
 
 ## How It Works
 
@@ -58,8 +58,8 @@ The host joins with `MirrorMode.off` on the camera (see `home_screen.dart`). Thi
 
 To exercise the full end-to-end flow, run on two devices:
 
-- **Device 1** — login as Alice, Create a Livestream, Show scoreboard, start the game clock
-- **Device 2** — login as Bob, View a Livestream, paste the Call ID shown on Device 1
+- **Device 1**: login as Alice, Create a Livestream, Show scoreboard, start the game clock
+- **Device 2**: login as Bob, View a Livestream, paste the Call ID shown on Device 1
 
 Edit the scoreboard on Device 1 and watch Device 2 pick up the changes within a frame.
 
