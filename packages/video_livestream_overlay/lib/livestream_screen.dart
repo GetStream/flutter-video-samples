@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:stream_video_filters/video_effects_manager.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 
@@ -36,7 +35,9 @@ class LiveStreamScreen extends StatefulWidget {
 class _LiveStreamScreenState extends State<LiveStreamScreen> {
   late final StreamVideoEffectsManager _effectsManager;
   final _scoreboardChannel = ScoreboardChannel();
+
   late StreamSubscription<CallState> _callStateSubscription;
+  Timer? _clockTimer;
 
   bool _scoreboardEnabled = false;
 
@@ -48,235 +49,59 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
     _callStateSubscription = widget.livestreamCall.state.valueStream
         .distinct((previous, current) => previous.status != current.status)
         .listen((_) {});
+
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), _onClockTick);
+  }
+
+  void _onClockTick(Timer timer) {
+    final config = ScoreboardConfig.instance;
+    if (!config.clockRunning || !_scoreboardEnabled) return;
+
+    config.clockSeconds++;
+    _scoreboardChannel.updateScoreboardState(clockLabel: config.clockLabel);
   }
 
   @override
   void dispose() {
+    _clockTimer?.cancel();
     _callStateSubscription.cancel();
+    _effectsManager.dispose();
     super.dispose();
   }
 
   Future<void> _toggleScoreboard() async {
     if (_scoreboardEnabled) {
-      await _effectsManager.disableAllFilters();
       setState(() => _scoreboardEnabled = false);
+      await _effectsManager.disableAllFilters();
     } else {
+      setState(() => _scoreboardEnabled = true);
       await _effectsManager.applyCustomEffect(
         'scoreboard',
         registerEffectProcessorCallback: () async {
           await _scoreboardChannel.registerScoreboardEffect();
-          // Push the current Dart-side config so the very first rendered
-          // frame already reflects the dialog's values instead of the native
-          // defaults.
+
           final config = ScoreboardConfig.instance;
           await _scoreboardChannel.updateScoreboardState(
-            homeLabel: config.homeLabel,
-            awayLabel: config.awayLabel,
             homeScore: config.homeScore,
             awayScore: config.awayScore,
-            periodLabel: config.periodLabel,
             clockLabel: config.clockLabel,
             mirror: config.mirror,
           );
         },
       );
-      setState(() => _scoreboardEnabled = true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return PartialCallStateBuilder(
-      call: widget.livestreamCall,
-      selector: (state) =>
-          (isBackstage: state.isBackstage, endedAt: state.endedAt),
-      builder: (context, callState) {
-        return Scaffold(
-          body: Builder(
-            builder: (context) {
-              if (callState.isBackstage) {
-                return _BackstageView(
-                  call: widget.livestreamCall,
-                  callId: widget.callId,
-                );
-              }
-
-              if (callState.endedAt != null) {
-                return _LivestreamEndedView(call: widget.livestreamCall);
-              }
-
-              return _LivestreamLiveView(
-                call: widget.livestreamCall,
-                callId: widget.callId,
-                isHost: widget.isHost,
-                scoreboardEnabled: _scoreboardEnabled,
-                onToggleScoreboard: _toggleScoreboard,
-                onEditScoreboard: () => showScoreboardSettingsDialog(context),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _BackstageView extends StatelessWidget {
-  const _BackstageView({required this.call, required this.callId});
-
-  final Call call;
-  final String callId;
-
-  @override
-  Widget build(BuildContext context) {
-    return PartialCallStateBuilder(
-      call: call,
-      selector: (state) =>
-          state.callParticipants.where((p) => !p.roles.contains('host')).length,
-      builder: (context, waitingParticipantsCount) {
-        return Padding(
-          padding: const EdgeInsets.all(24),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Call ID',
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      SelectableText(
-                        callId,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                PartialCallStateBuilder(
-                  call: call,
-                  selector: (state) => state.startsAt,
-                  builder: (context, startsAt) {
-                    return Text(
-                      startsAt != null
-                          ? 'Livestream starting at '
-                              '${DateFormat('HH:mm').format(startsAt.toLocal())}'
-                          : 'Livestream starting soon',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    );
-                  },
-                ),
-                if (waitingParticipantsCount > 0) ...[
-                  const SizedBox(height: 8),
-                  Text('$waitingParticipantsCount participants waiting'),
-                ],
-                const SizedBox(height: 32),
-                FilledButton(
-                  onPressed: () => call.goLive(),
-                  child: const Text('Go Live'),
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () {
-                    call.leave();
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Leave Livestream'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _LivestreamEndedView extends StatefulWidget {
-  const _LivestreamEndedView({required this.call});
-
-  final Call call;
-
-  @override
-  State<_LivestreamEndedView> createState() => _LivestreamEndedViewState();
-}
-
-class _LivestreamEndedViewState extends State<_LivestreamEndedView> {
-  late Future<Result<List<CallRecording>>> _recordingsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _recordingsFuture = widget.call.listRecordings();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            widget.call.leave();
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Livestream has ended'),
-            FutureBuilder(
-              future: _recordingsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data!.isSuccess) {
-                  final recordings = snapshot.requireData.getDataOrNull();
-                  if (recordings == null || recordings.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.only(top: 12),
-                      child: Text('No recordings found'),
-                    );
-                  }
-
-                  return Column(
-                    children: [
-                      const SizedBox(height: 12),
-                      const Text('Recordings'),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: recordings.length,
-                        itemBuilder: (context, index) {
-                          final recording = recordings[index];
-                          return ListTile(title: Text(recording.url));
-                        },
-                      ),
-                    ],
-                  );
-                }
-
-                return const SizedBox.shrink();
-              },
-            ),
-          ],
-        ),
+      body: _LivestreamLiveView(
+        call: widget.livestreamCall,
+        callId: widget.callId,
+        isHost: widget.isHost,
+        scoreboardEnabled: _scoreboardEnabled,
+        onToggleScoreboard: _toggleScoreboard,
+        onEditScoreboard: () => showScoreboardSettingsDialog(context),
       ),
     );
   }
@@ -336,11 +161,8 @@ class _LivestreamLiveView extends StatelessWidget {
                   ],
                 ),
                 onLeaveCallTap: () {
-                  if (isHost) {
-                    call.stopLive();
-                  } else {
-                    call.leave();
-                  }
+                  call.end();
+                  Navigator.of(context).pop();
                 },
               ),
               callParticipantsWidgetBuilder: (context, call) {

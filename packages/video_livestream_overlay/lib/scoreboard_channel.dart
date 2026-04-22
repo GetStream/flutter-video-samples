@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 /// Bridges the Dart side of the app with the native scoreboard filter in
 /// `MainActivity.kt` / `AppDelegate.swift`. The filter itself lives natively so
 /// it can hook into WebRTC's `ProcessorProvider` and burn the overlay into the
-/// outgoing publisher video (which also makes it show up in HLS/RTMP egress).
+/// outgoing publisher video.
 class ScoreboardChannel {
   static const _platform = MethodChannel(
     'io.getstream.video_livestream_overlay.channel',
@@ -18,22 +18,15 @@ class ScoreboardChannel {
   }
 
   /// Pushes a (partial) update of the scoreboard state to the native filter.
-  /// Only non-null fields are sent; native keeps the current value for the rest.
   Future<void> updateScoreboardState({
-    String? homeLabel,
-    String? awayLabel,
     String? homeScore,
     String? awayScore,
-    String? periodLabel,
     String? clockLabel,
     bool? mirror,
   }) async {
     final args = <String, dynamic>{};
-    if (homeLabel != null) args['homeLabel'] = homeLabel;
-    if (awayLabel != null) args['awayLabel'] = awayLabel;
     if (homeScore != null) args['homeScore'] = homeScore;
     if (awayScore != null) args['awayScore'] = awayScore;
-    if (periodLabel != null) args['periodLabel'] = periodLabel;
     if (clockLabel != null) args['clockLabel'] = clockLabel;
     if (mirror != null) args['mirror'] = mirror;
     await _platform.invokeMethod('updateScoreboardState', args);
@@ -49,12 +42,11 @@ class ScoreboardConfig {
   ScoreboardConfig._();
   static final ScoreboardConfig instance = ScoreboardConfig._();
 
-  String homeLabel = 'HOME';
-  String awayLabel = 'AWAY';
-  String homeScore = '2';
+  String homeScore = '0';
   String awayScore = '0';
-  String periodLabel = 'P1';
-  String clockLabel = '20:00';
+
+  int clockSeconds = 0;
+  bool clockRunning = false;
 
   /// Pre-flip the burned-in overlay horizontally.
   ///
@@ -67,4 +59,10 @@ class ScoreboardConfig {
   /// the overlay to look right on your own screen (at the cost of reading
   /// backwards to remote viewers).
   bool mirror = false;
+
+  String get clockLabel {
+    final minutes = (clockSeconds ~/ 60).toString().padLeft(2, '0');
+    final seconds = (clockSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
 }

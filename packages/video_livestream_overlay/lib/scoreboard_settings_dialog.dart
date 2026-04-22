@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'scoreboard_channel.dart';
 
-/// Shows a modal dialog that lets the user edit the scoreboard state and
-/// pushes updates to the native filter via the method channel.
+/// Shows a modal dialog that lets the user edit the scoreboard scores and
+/// control the game clock. Pushes updates to the native filter via the method
+/// channel.
 Future<void> showScoreboardSettingsDialog(BuildContext context) {
   return showDialog<void>(
     context: context,
@@ -23,53 +26,68 @@ class _ScoreboardSettingsDialogState extends State<_ScoreboardSettingsDialog> {
   final _channel = ScoreboardChannel();
   final _config = ScoreboardConfig.instance;
 
-  late final TextEditingController _homeLabel;
-  late final TextEditingController _awayLabel;
   late final TextEditingController _homeScore;
   late final TextEditingController _awayScore;
-  late final TextEditingController _period;
-  late final TextEditingController _clock;
   late bool _mirror;
+
+  Timer? _displayTimer;
 
   @override
   void initState() {
     super.initState();
-    _homeLabel = TextEditingController(text: _config.homeLabel);
-    _awayLabel = TextEditingController(text: _config.awayLabel);
     _homeScore = TextEditingController(text: _config.homeScore);
     _awayScore = TextEditingController(text: _config.awayScore);
-    _period = TextEditingController(text: _config.periodLabel);
-    _clock = TextEditingController(text: _config.clockLabel);
     _mirror = _config.mirror;
+
+    if (_config.clockRunning) {
+      _startDisplayTimer();
+    }
   }
 
   @override
   void dispose() {
-    _homeLabel.dispose();
-    _awayLabel.dispose();
+    _displayTimer?.cancel();
     _homeScore.dispose();
     _awayScore.dispose();
-    _period.dispose();
-    _clock.dispose();
     super.dispose();
+  }
+
+  void _startDisplayTimer() {
+    _displayTimer?.cancel();
+    _displayTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  void _toggleClock() {
+    setState(() {
+      _config.clockRunning = !_config.clockRunning;
+      if (_config.clockRunning) {
+        _startDisplayTimer();
+      } else {
+        _displayTimer?.cancel();
+      }
+    });
+  }
+
+  void _resetClock() {
+    setState(() {
+      _config.clockRunning = false;
+      _config.clockSeconds = 0;
+      _displayTimer?.cancel();
+    });
+    _channel.updateScoreboardState(clockLabel: _config.clockLabel);
   }
 
   Future<void> _apply() async {
     _config
-      ..homeLabel = _homeLabel.text
-      ..awayLabel = _awayLabel.text
       ..homeScore = _homeScore.text
       ..awayScore = _awayScore.text
-      ..periodLabel = _period.text
-      ..clockLabel = _clock.text
       ..mirror = _mirror;
 
     await _channel.updateScoreboardState(
-      homeLabel: _config.homeLabel,
-      awayLabel: _config.awayLabel,
       homeScore: _config.homeScore,
       awayScore: _config.awayScore,
-      periodLabel: _config.periodLabel,
       clockLabel: _config.clockLabel,
       mirror: _config.mirror,
     );
@@ -99,56 +117,48 @@ class _ScoreboardSettingsDialogState extends State<_ScoreboardSettingsDialog> {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: _homeLabel,
-                    decoration: _fieldDecoration('Home team'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 72,
-                  child: TextField(
                     controller: _homeScore,
                     keyboardType: TextInputType.number,
-                    decoration: _fieldDecoration('Score'),
+                    decoration: _fieldDecoration('Home score'),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
+                const SizedBox(width: 12),
                 Expanded(
-                  child: TextField(
-                    controller: _awayLabel,
-                    decoration: _fieldDecoration('Away team'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 72,
                   child: TextField(
                     controller: _awayScore,
                     keyboardType: TextInputType.number,
-                    decoration: _fieldDecoration('Score'),
+                    decoration: _fieldDecoration('Away score'),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+            Text(
+              'Game clock',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
             Row(
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _period,
-                    decoration: _fieldDecoration('Period'),
+                Text(
+                  _config.clockLabel,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontFeatures: [const FontFeature.tabularFigures()],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _clock,
-                    decoration: _fieldDecoration('Clock'),
+                const Spacer(),
+                IconButton.filled(
+                  onPressed: _toggleClock,
+                  icon: Icon(
+                    _config.clockRunning ? Icons.pause : Icons.play_arrow,
                   ),
+                  tooltip: _config.clockRunning ? 'Pause' : 'Start',
+                ),
+                const SizedBox(width: 8),
+                IconButton.outlined(
+                  onPressed: _resetClock,
+                  icon: const Icon(Icons.replay),
+                  tooltip: 'Reset',
                 ),
               ],
             ),
@@ -171,10 +181,7 @@ class _ScoreboardSettingsDialogState extends State<_ScoreboardSettingsDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        FilledButton(
-          onPressed: _apply,
-          child: const Text('Apply'),
-        ),
+        FilledButton(onPressed: _apply, child: const Text('Apply')),
       ],
     );
   }

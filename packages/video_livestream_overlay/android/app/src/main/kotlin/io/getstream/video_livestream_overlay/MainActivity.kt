@@ -39,7 +39,6 @@ class MainActivity : FlutterActivity() {
                             awayLabel = call.argument("awayLabel"),
                             homeScore = call.argument("homeScore"),
                             awayScore = call.argument("awayScore"),
-                            periodLabel = call.argument("periodLabel"),
                             clockLabel = call.argument("clockLabel"),
                             mirror = call.argument("mirror"),
                         )
@@ -62,7 +61,6 @@ object ScoreboardState {
         val awayLabel: String,
         val homeScore: String,
         val awayScore: String,
-        val periodLabel: String,
         val clockLabel: String,
         val mirror: Boolean,
     )
@@ -71,10 +69,9 @@ object ScoreboardState {
     private var current = Snapshot(
         homeLabel = "HOME",
         awayLabel = "AWAY",
-        homeScore = "2",
+        homeScore = "0",
         awayScore = "0",
-        periodLabel = "P1",
-        clockLabel = "20:00",
+        clockLabel = "00:00",
         mirror = false,
     )
 
@@ -85,7 +82,6 @@ object ScoreboardState {
         awayLabel: String?,
         homeScore: String?,
         awayScore: String?,
-        periodLabel: String?,
         clockLabel: String?,
         mirror: Boolean?,
     ) {
@@ -95,7 +91,6 @@ object ScoreboardState {
                 awayLabel = awayLabel ?: current.awayLabel,
                 homeScore = homeScore ?: current.homeScore,
                 awayScore = awayScore ?: current.awayScore,
-                periodLabel = periodLabel ?: current.periodLabel,
                 clockLabel = clockLabel ?: current.clockLabel,
                 mirror = mirror ?: current.mirror,
             )
@@ -108,10 +103,6 @@ object ScoreboardState {
  * is encoded into the outgoing WebRTC video and flows through to all
  * participants and HLS/RTMP egress. Reads state from [ScoreboardState] every
  * frame, so updates pushed from Flutter appear on the next captured frame.
- *
- * When `mirror == true`, the canvas is horizontally flipped before drawing,
- * which cancels out the selfie-preview mirror so the overlay reads correctly
- * in the local preview. For non-mirrored renderers, leave it `false`.
  */
 class ScoreboardVideoFilterFactory : VideoFrameProcessorFactoryInterface {
     override fun build(): VideoFrameProcessor {
@@ -139,8 +130,9 @@ private class ScoreboardVideoFilter : BitmapVideoFilter() {
         typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         textAlign = Paint.Align.CENTER
     }
-    private val metaPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#BDBDBD")
+    private val clockPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.WHITE
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         textAlign = Paint.Align.CENTER
     }
     private val dividerPaint = Paint().apply {
@@ -188,11 +180,12 @@ private class ScoreboardVideoFilter : BitmapVideoFilter() {
 
         labelPaint.textSize = boardHeight * 0.26f
         scorePaint.textSize = boardHeight * 0.60f
-        metaPaint.textSize = boardHeight * 0.16f
+        clockPaint.textSize = boardHeight * 0.28f
 
         val midY = (top + bottom) / 2f
         val labelBaselineOffset = labelPaint.textSize * 0.35f
         val scoreBaselineOffset = scorePaint.textSize * 0.35f
+        val clockBaselineOffset = clockPaint.textSize * 0.35f
 
         labelPaint.textAlign = Paint.Align.LEFT
         canvas.drawText(state.homeLabel, left + boardWidth * 0.08f, midY + labelBaselineOffset, labelPaint)
@@ -203,8 +196,7 @@ private class ScoreboardVideoFilter : BitmapVideoFilter() {
         canvas.drawText(state.awayScore, right - boardWidth * 0.38f, midY + scoreBaselineOffset, scorePaint)
 
         val centerX = (left + right) / 2f
-        canvas.drawText(state.periodLabel, centerX, midY - metaPaint.textSize * 0.35f, metaPaint)
-        canvas.drawText(state.clockLabel, centerX, midY + metaPaint.textSize * 1.2f, metaPaint)
+        canvas.drawText(state.clockLabel, centerX, midY + clockBaselineOffset, clockPaint)
 
         val divX1 = centerX - boardWidth * 0.065f
         val divX2 = centerX + boardWidth * 0.065f

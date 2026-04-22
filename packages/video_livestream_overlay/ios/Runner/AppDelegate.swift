@@ -54,7 +54,6 @@ final class ScoreboardState {
         var awayLabel: String
         var homeScore: String
         var awayScore: String
-        var periodLabel: String
         var clockLabel: String
         var mirror: Bool
         var version: Int
@@ -64,26 +63,26 @@ final class ScoreboardState {
     private var current = Snapshot(
         homeLabel: "HOME",
         awayLabel: "AWAY",
-        homeScore: "2",
+        homeScore: "0",
         awayScore: "0",
-        periodLabel: "P1",
-        clockLabel: "20:00",
+        clockLabel: "00:00",
         mirror: false,
         version: 0
     )
 
     func snapshot() -> Snapshot {
-        lock.lock(); defer { lock.unlock() }
+        lock.lock()
+        defer { lock.unlock() }
         return current
     }
 
     func update(_ args: [String: Any]) {
-        lock.lock(); defer { lock.unlock() }
+        lock.lock()
+        defer { lock.unlock() }
         if let v = args["homeLabel"] as? String { current.homeLabel = v }
         if let v = args["awayLabel"] as? String { current.awayLabel = v }
         if let v = args["homeScore"] as? String { current.homeScore = v }
         if let v = args["awayScore"] as? String { current.awayScore = v }
-        if let v = args["periodLabel"] as? String { current.periodLabel = v }
         if let v = args["clockLabel"] as? String { current.clockLabel = v }
         if let v = args["mirror"] as? Bool { current.mirror = v }
         current.version &+= 1
@@ -94,17 +93,6 @@ final class ScoreboardState {
 /// overlay is encoded into the outgoing WebRTC video and flows through to all
 /// participants and HLS/RTMP egress.
 ///
-/// Keeps `originalImage` in raw sensor coords, pre-orients the overlay with
-/// `oriented(originalImageOrientation)` so its pixels align with the raw
-/// pixel buffer, then composites in raw coords — same pattern as
-/// `ImageBackgroundVideoFrameProcessor` in `stream_video_filters`.
-///
-/// Mirroring is driven by `ScoreboardState.mirror`, which Flutter flips on
-/// based on the active camera / preview. When `true`, the drawing context is
-/// pre-flipped so the local selfie-preview mirror cancels it out. When
-/// `false`, nothing is flipped — correct for back-camera or non-mirrored
-/// renderers.
-///
 /// Only one cached overlay lives at any time: (width, height, state version).
 /// Updates bump the version and the next frame re-renders.
 final class ScoreboardVideoFrameProcessor: stream_video_filters.VideoFilter {
@@ -112,7 +100,8 @@ final class ScoreboardVideoFrameProcessor: stream_video_filters.VideoFilter {
     override public init(filter: @escaping (Input) -> CIImage) { fatalError() }
 
     private var cached: (key: String, image: CIImage)?
-    private let cacheQueue = DispatchQueue(label: "io.getstream.video_livestream_overlay.scoreboard.cache")
+    private let cacheQueue = DispatchQueue(
+        label: "io.getstream.video_livestream_overlay.scoreboard.cache")
 
     init() {
         super.init(filter: { input in input.originalImage })
@@ -133,7 +122,8 @@ final class ScoreboardVideoFrameProcessor: stream_video_filters.VideoFilter {
             )
             let alignedOverlay = uprightOverlay.oriented(orientation)
 
-            return alignedOverlay
+            return
+                alignedOverlay
                 .composited(over: input.originalImage)
                 .cropped(to: input.originalImage.extent)
         }
@@ -201,7 +191,8 @@ final class ScoreboardVideoFrameProcessor: stream_video_filters.VideoFilter {
 
             let labelFont = UIFont.systemFont(ofSize: boardHeight * 0.26, weight: .bold)
             let scoreFont = UIFont.systemFont(ofSize: boardHeight * 0.60, weight: .bold)
-            let metaFont = UIFont.systemFont(ofSize: boardHeight * 0.16, weight: .regular)
+            let clockFont = UIFont.monospacedDigitSystemFont(
+                ofSize: boardHeight * 0.28, weight: .bold)
 
             drawText(
                 snapshot.homeLabel,
@@ -224,14 +215,9 @@ final class ScoreboardVideoFrameProcessor: stream_video_filters.VideoFilter {
                 font: scoreFont, color: .white
             )
             drawText(
-                snapshot.periodLabel,
-                at: CGPoint(x: rect.midX, y: rect.midY - boardHeight * 0.22),
-                font: metaFont, color: UIColor(white: 0.74, alpha: 1)
-            )
-            drawText(
                 snapshot.clockLabel,
-                at: CGPoint(x: rect.midX, y: rect.midY + boardHeight * 0.22),
-                font: metaFont, color: UIColor(white: 0.74, alpha: 1)
+                at: CGPoint(x: rect.midX, y: rect.midY),
+                font: clockFont, color: .white
             )
 
             let divX1 = rect.midX - boardWidth * 0.065

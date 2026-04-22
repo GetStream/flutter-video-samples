@@ -28,11 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.live_tv,
-                  size: 72,
-                  color: theme.colorScheme.primary,
-                ),
+                Icon(Icons.live_tv, size: 72, color: theme.colorScheme.primary),
                 const SizedBox(height: 16),
                 Text(
                   'Livestream Overlay',
@@ -40,16 +36,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Livestreaming with a scoreboard overlay burned into the '
-                  'publisher video via a native video filter.',
+                  'This sample app demonstrates livestreaming with a '
+                  'real-time scoreboard overlay composited into the '
+                  'publisher video via a native video frame processor.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 48),
-                Text(
-                  'Login as:',
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text('Login as:', style: theme.textTheme.titleMedium),
                 const SizedBox(height: 12),
                 ...users.map((user) {
                   final selected = selectedUser?.user.id == user.user.id;
@@ -77,6 +71,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? () async {
                             await StreamVideo(
                               AppKeys.streamApiKey,
+                              options: StreamVideoOptions(
+                                logPriority: Priority.verbose,
+                              ),
                               user: selectedUser!.user,
                               userToken: selectedUser!.token,
                             ).connect();

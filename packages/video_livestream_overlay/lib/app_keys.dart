@@ -1,10 +1,5 @@
 /// Demo Stream credentials used by the sample app.
 ///
-/// These are the same demo credentials as the public livestreaming tutorial
-/// (https://getstream.io/video/sdk/flutter/tutorial/livestreaming/) and should
-/// be treated as publicly accessible — anyone running the sample may join the
-/// same livestream channels.
-///
 /// To use this project with your own Stream App credentials:
 ///  1. Replace `streamApiKey` with your Stream API key from the Stream Dashboard.
 ///  2. Generate user tokens for the test users using the Stream token

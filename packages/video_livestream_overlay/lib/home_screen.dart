@@ -64,9 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Go live to broadcast with a scoreboard overlay burned into '
-                "your video — or join as a viewer to watch someone else's "
-                'livestream.',
+                'Start a livestream with a real-time scoreboard overlay '
+                'composited directly into your video frames — visible to all '
+                'viewers, recordings, and RTMP restreams.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
@@ -75,7 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   icon: const Icon(Icons.videocam),
-                  onPressed: _createLoadingText == null ? _createLivestream : null,
+                  onPressed: _createLoadingText == null
+                      ? _createLivestream
+                      : null,
                   label: Text(_createLoadingText ?? 'Create a Livestream'),
                 ),
               ),
@@ -122,19 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      final updateResult = await call.update(
-        startsAt: DateTime.now().toUtc().add(const Duration(seconds: 120)),
-        backstage: const StreamBackstageSettings(
-          enabled: true,
-          joinAheadTimeSeconds: 120,
-        ),
-      );
-
-      if (updateResult.isFailure) {
-        _showSnack('Could not update call: $updateResult');
-        return;
-      }
-
       // Disable the local selfie-preview mirror so burned-in filters (like the
       // scoreboard overlay) look identical in the local preview, on remote
       // participants and in HLS/RTMP egress. Without this, the local preview
@@ -148,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       await call.join(connectOptions: connectOptions);
+      await call.goLive();
 
       if (!mounted) return;
 
@@ -208,8 +198,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               pictureInPictureConfiguration:
                   const PictureInPictureConfiguration(
-                enablePictureInPicture: true,
-              ),
+                    enablePictureInPicture: true,
+                  ),
             ),
           ),
         ),
@@ -249,6 +239,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showSnack(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

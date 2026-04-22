@@ -5,10 +5,10 @@
 ///
 /// Flow:
 ///   - Login as one of three demo users
-///   - Create a livestream (you become the host) or join one by call ID
-///   - As host: toggle the scoreboard overlay and edit its state live — the
-///     overlay is encoded into the outgoing video and flows through to all
-///     participants and HLS/RTMP egress
+///   - Create a livestream (goes live immediately) or join one by call ID
+///   - As host: toggle the scoreboard overlay, update scores and control a
+///     game clock — the overlay is encoded into the outgoing video and flows
+///     through to all participants and HLS/RTMP egress
 ///
 /// To swap in your own Stream App credentials, update `app_keys.dart`.
 library;
