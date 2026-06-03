@@ -1,6 +1,6 @@
 name: video_multicall
 description: "A showcase app for Stream Video Flutter multicall functionality."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  stream_video_flutter: ^1.2.4
+  stream_video_flutter: ^1.4.0
   permission_handler: ^12.0.1
 
 dev_dependencies:

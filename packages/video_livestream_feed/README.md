@@ -7,8 +7,8 @@ A showcase app demonstrating a **TikTok-style vertical livestream feed** using t
 
 ## Screenshots & Demo
 
-| Feed (viewer) | Host (go live) |
-|---------------|----------------|
+| Feed (viewer)           | Host (go live)          |
+| ----------------------- | ----------------------- |
 | ![Feed screen](sc1.png) | ![Host screen](sc2.png) |
 
 **Feed scrolling demo:**
@@ -99,5 +99,5 @@ To use your own Stream credentials, update `lib/app_config.dart`:
 
 ## Dependencies
 
-- `stream_video_flutter: ^1.2.4` — Video calling SDK with pre-built UI
+- `stream_video_flutter: ^1.4.0` — Video calling SDK with pre-built UI
 - `permission_handler: ^12.0.1` — Runtime camera/microphone permissions

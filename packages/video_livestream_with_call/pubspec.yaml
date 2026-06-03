@@ -1,0 +1,22 @@
+name: video_livestream_with_call
+description: "A sample app where viewers can call the livestream host mid-broadcast. The host accepts the call in a floating window while staying on the livestream."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  stream_video_flutter: ^1.4.0
+  stream_video_noise_cancellation: ^1.4.0
+  permission_handler: ^12.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

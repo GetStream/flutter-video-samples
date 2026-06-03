@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:stream_video_flutter/stream_video_flutter_background.dart';
 import 'package:video_ringing_with_chat_push/chat_notifications.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
@@ -37,6 +38,28 @@ class _HomeScreenState extends State<HomeScreen> {
   String get _otherUserName => widget.userId == AppConfig.user1Id
       ? AppConfig.user2Name
       : AppConfig.user1Name;
+
+  @override
+  void initState() {
+    super.initState();
+
+    StreamBackgroundService.init(
+      StreamVideo.instance,
+      onButtonClick: (call, type, serviceType) async {
+        switch (serviceType) {
+          case ServiceType.call:
+            await call.reject(reason: CallRejectReason.cancel());
+          case ServiceType.screenSharing:
+            await StreamVideoFlutterBackground.stopService(
+              ServiceType.screenSharing,
+              callCid: call.callCid.value,
+            );
+
+            await call.setScreenShareEnabled(enabled: false);
+        }
+      },
+    );
+  }
 
   Future<void> _startRingingCall() async {
     if (_isCalling) return;
@@ -318,7 +341,8 @@ class _DeviceTokensScreenState extends State<_DeviceTokensScreen> {
         final chatClient = StreamChat.of(context).client;
         registerChatDevice(
           chatClient,
-          pushProviderName: AppConfig.androidPushProviderName,
+          iosPushProviderName: AppConfig.iosPushProviderName,
+          androidPushProviderName: AppConfig.androidPushProviderName,
         );
       }
 

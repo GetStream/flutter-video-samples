@@ -30,9 +30,8 @@ class _PermissionRequestsState extends State<PermissionRequests> {
     }
 
     final request = _permissionRequests.first;
-    final displayName = request.user.name.isNotEmpty
-        ? request.user.name
-        : request.user.id;
+    final displayName =
+        request.user.name.isNotEmpty ? request.user.name : request.user.id;
     final permissions = request.permissions.join(', ');
 
     return Padding(

@@ -24,31 +24,31 @@ class _AudioRoomActionsState extends State<AudioRoomActions> {
     _microphoneEnabled =
         widget.audioRoomCall.connectOptions.microphone.isEnabled;
 
-    _callEventsSubscription = widget.audioRoomCall.callEvents
-        .on<StreamCallPermissionsUpdatedEvent>(
-          (
-            event,
-          ) {
-            if (event.user.id != StreamVideo.instance.currentUser.id) {
-              return;
-            }
+    _callEventsSubscription =
+        widget.audioRoomCall.callEvents.on<StreamCallPermissionsUpdatedEvent>(
+      (
+        event,
+      ) {
+        if (event.user.id != StreamVideo.instance.currentUser.id) {
+          return;
+        }
 
-            if (_waitingForPermission &&
-                event.ownCapabilities.contains(CallPermission.sendAudio)) {
-              setState(() {
-                _waitingForPermission = false;
-              });
+        if (_waitingForPermission &&
+            event.ownCapabilities.contains(CallPermission.sendAudio)) {
+          setState(() {
+            _waitingForPermission = false;
+          });
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Permission to speak granted. You can now enable your microphone.',
-                  ),
-                ),
-              );
-            }
-          },
-        );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Permission to speak granted. You can now enable your microphone.',
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override

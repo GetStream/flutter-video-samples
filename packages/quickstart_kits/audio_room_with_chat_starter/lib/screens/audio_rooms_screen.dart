@@ -56,8 +56,7 @@ class _AudioRoomsScreenState extends State<AudioRoomsScreen> {
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final call = calls[index].call;
-                final name =
-                    (call.details.custom['name'] as String?) ??
+                final name = (call.details.custom['name'] as String?) ??
                     'Audio Room ${index + 1}';
 
                 return ListTile(

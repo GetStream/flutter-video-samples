@@ -133,10 +133,7 @@ class _ScoreboardSettingsDialogState extends State<_ScoreboardSettingsDialog> {
               ],
             ),
             const SizedBox(height: 16),
-            Text(
-              'Game clock',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
+            Text('Game clock', style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             Row(
               children: [

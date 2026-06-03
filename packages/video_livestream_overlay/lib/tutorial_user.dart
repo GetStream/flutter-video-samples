@@ -10,40 +10,40 @@ class TutorialUser {
   final String? token;
 
   factory TutorialUser.user1() => TutorialUser(
-        user: User.regular(
-          userId: AppKeys.user1Id,
-          name: AppKeys.user1Name,
-          image:
-              'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=600',
-        ),
-        token: AppKeys.user1Token,
-      );
+    user: User.regular(
+      userId: AppKeys.user1Id,
+      name: AppKeys.user1Name,
+      image:
+          'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=600',
+    ),
+    token: AppKeys.user1Token,
+  );
 
   factory TutorialUser.user2() => TutorialUser(
-        user: User.regular(
-          userId: AppKeys.user2Id,
-          name: AppKeys.user2Name,
-          image:
-              'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=600',
-        ),
-        token: AppKeys.user2Token,
-      );
+    user: User.regular(
+      userId: AppKeys.user2Id,
+      name: AppKeys.user2Name,
+      image:
+          'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=600',
+    ),
+    token: AppKeys.user2Token,
+  );
 
   factory TutorialUser.user3() => TutorialUser(
-        user: User.regular(
-          userId: AppKeys.user3Id,
-          name: AppKeys.user3Name,
-          image:
-              'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=600',
-        ),
-        token: AppKeys.user3Token,
-      );
+    user: User.regular(
+      userId: AppKeys.user3Id,
+      name: AppKeys.user3Name,
+      image:
+          'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=600',
+    ),
+    token: AppKeys.user3Token,
+  );
 
   static List<TutorialUser> get users => [
-        TutorialUser.user1(),
-        TutorialUser.user2(),
-        TutorialUser.user3(),
-      ];
+    TutorialUser.user1(),
+    TutorialUser.user2(),
+    TutorialUser.user3(),
+  ];
 
   @override
   bool operator ==(Object other) {
