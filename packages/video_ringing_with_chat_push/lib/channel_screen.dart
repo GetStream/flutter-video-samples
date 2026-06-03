@@ -35,7 +35,8 @@ class ChannelScreen extends StatelessWidget {
   void _startCall(BuildContext context) async {
     final channel = StreamChannel.of(context).channel;
     final currentUser = StreamChat.of(context).currentUser;
-    final memberIds = channel.state?.members
+    final memberIds =
+        channel.state?.members
             .map((m) => m.userId)
             .where((id) => id != null && id != currentUser?.id)
             .cast<String>()
@@ -48,22 +49,18 @@ class ChannelScreen extends StatelessWidget {
         id: '${channel.id}_${Random().nextInt(100000)}',
       );
 
-      await call.getOrCreate(
-        memberIds: memberIds,
-        ringing: true,
-        video: true,
-      );
+      await call.getOrCreate(memberIds: memberIds, ringing: true, video: true);
 
       if (context.mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => CallScreen(call: call)),
-        );
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => CallScreen(call: call)));
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to start call: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to start call: $e')));
       }
     }
   }

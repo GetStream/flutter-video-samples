@@ -26,8 +26,8 @@ class ParticipantAvatar extends StatelessWidget {
         radius: 40,
         backgroundImage:
             participantState.image != null && participantState.image!.isNotEmpty
-            ? NetworkImage(participantState.image!)
-            : null,
+                ? NetworkImage(participantState.image!)
+                : null,
         child: participantState.image == null || participantState.image!.isEmpty
             ? Text(
                 participantState.name.substring(0, 1).toUpperCase(),

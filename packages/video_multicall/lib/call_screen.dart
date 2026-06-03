@@ -52,13 +52,6 @@ class _CallScreenState extends State<CallScreen> {
     unawaited(_joinInitialRoom());
   }
 
-  @override
-  void dispose() {
-    unawaited(_alphaRoom.dispose());
-    unawaited(_betaRoom.dispose());
-    super.dispose();
-  }
-
   Future<void> _joinInitialRoom() async {
     final activeRoom = _activeRoom;
     if (activeRoom == null) return;
@@ -161,11 +154,6 @@ class _CallScreenState extends State<CallScreen> {
         return false;
       }
 
-      // Listen to participants changes and apply playout state depending on the active room.
-      _listenToRoomParticipants(room);
-
-      await _applyPlayoutState(room, enabled: identical(room, _activeRoom));
-
       return true;
     } catch (e) {
       _showMessage('Failed to join ${room.roomName}: $e');
@@ -173,46 +161,6 @@ class _CallScreenState extends State<CallScreen> {
       return false;
     } finally {
       _setRoomJoining(room, false);
-    }
-  }
-
-  void _listenToRoomParticipants(_RoomSession room) {
-    room.participantsSubscription?.cancel();
-    room.participantsSubscription = room.call
-        ?.partialState((state) => state.callParticipants)
-        .listen((_) {
-          unawaited(
-            _applyPlayoutState(room, enabled: identical(room, _activeRoom)),
-          );
-        });
-  }
-
-  // Apply playout state to the remote participants based on the active room.
-  // If the active room is the same as the room, enable playout.
-  // If the active room is different, disable playout.
-  Future<void> _applyPlayoutState(
-    _RoomSession room, {
-    required bool enabled,
-  }) async {
-    final call = room.call;
-    if (call == null) return;
-
-    final remoteParticipants = call.state.value.callParticipants.where(
-      (participant) => !participant.isLocal,
-    );
-
-    for (final participant in remoteParticipants) {
-      final tracks = call
-          .getTracks(participant.trackIdPrefix)
-          .where((track) => track.isAudioTrack);
-
-      for (final track in tracks) {
-        if (enabled) {
-          track.enable();
-        } else {
-          track.disable();
-        }
-      }
     }
   }
 
@@ -233,18 +181,28 @@ class _CallScreenState extends State<CallScreen> {
     final currentRoom = _activeRoom;
     final targetRoom = currentRoom == null ? null : _otherRoom(currentRoom);
 
-    if (_isBusy || currentRoom == null || targetRoom?.call == null) return;
+    if (_isBusy ||
+        currentRoom == null ||
+        currentRoom.call == null ||
+        targetRoom?.call == null) {
+      return;
+    }
 
     final mediaPreferences = _currentMediaPreferences();
 
     _setBusy(true);
 
     try {
+      // Stop publishing local media on the room we are leaving focus on.
       await _applyLocalMedia(currentRoom, const _MediaPreferences.disabled());
-      await _applyPlayoutState(currentRoom, enabled: false);
 
-      await _applyLocalMedia(targetRoom!, mediaPreferences);
-      await _applyPlayoutState(targetRoom, enabled: true);
+      // Hand over audio: suspendAudio releases mic/speaker holds and disables tracks,
+      // while resumeAudio restores the target call's factory and track states.
+      await currentRoom.call!.suspendAudio();
+      await targetRoom!.call!.resumeAudio();
+
+      // Restore the user's mic/camera preferences on the now-active room.
+      await _applyLocalMedia(targetRoom, mediaPreferences);
 
       _setActiveRoom(targetRoom);
     } catch (e) {
@@ -263,12 +221,15 @@ class _CallScreenState extends State<CallScreen> {
     _setBusy(true);
 
     try {
-      await room.dispose();
       await call.leave();
       room.call = null;
 
       if (wasActive) {
-        _setActiveRoom(null);
+        // When the active room leaves while the other is still joined, the
+        // SDK auto-resumes the remaining call's audio.
+        // Promote it in our UI to match that.
+        final remaining = _otherRoom(room);
+        _setActiveRoom(remaining.call != null ? remaining : null);
       }
     } catch (e) {
       _showMessage('Failed to leave ${room.roomName}: $e');
@@ -294,7 +255,6 @@ class _CallScreenState extends State<CallScreen> {
       for (final room in _rooms) {
         final call = room.call;
         if (call == null) continue;
-        await room.dispose();
         await call.leave();
         room.call = null;
       }
@@ -380,10 +340,15 @@ class _CallScreenState extends State<CallScreen> {
               : const _MediaPreferences.disabled(),
         );
 
-        if (joined && shouldBecomeActive) {
-          await _applyPlayoutState(room, enabled: true);
+        if (!joined) return;
+
+        if (shouldBecomeActive) {
           _setActiveRoom(room);
         }
+        // Background joins are auto-suspended by the SDK because the client
+        // is configured with `multiCallAudioPolicy: suspendIncoming`. The
+        // previously-active room keeps focus; this room joins muted until
+        // the user switches into it via _switchRoom.
       } finally {
         _setBusy(false);
       }
@@ -398,12 +363,6 @@ class _RoomSession {
   final String roomName;
   Call? call;
   bool isJoining = false;
-  StreamSubscription<List<CallParticipantState>>? participantsSubscription;
-
-  Future<void> dispose() async {
-    await participantsSubscription?.cancel();
-    participantsSubscription = null;
-  }
 }
 
 class _MediaPreferences {

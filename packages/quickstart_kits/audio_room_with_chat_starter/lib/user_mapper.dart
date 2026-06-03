@@ -13,8 +13,8 @@ typedef ChatUser = chat.User;
 extension SampleUserX on SampleUser {
   /// Maps a [SampleUser] into user from the Video SDK.
   VideoUser toVideoUser() => VideoUser(
-    info: video.UserInfo(id: id, name: name, image: image),
-  );
+        info: video.UserInfo(id: id, name: name, image: image),
+      );
 
   /// Maps a [SampleUser] into user from the Chat SDK.
   ChatUser toChatUser() =>

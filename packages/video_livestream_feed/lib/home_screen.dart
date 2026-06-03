@@ -64,21 +64,20 @@ class HomeScreen extends StatelessWidget {
                     'Swipe through livestream channels like TikTok reels.',
                 buttonLabel: 'Open Feed',
                 color: theme.colorScheme.primary,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const FeedScreen()),
-                ),
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const FeedScreen())),
               ),
               const SizedBox(height: 12),
               _ActionCard(
                 icon: Icons.videocam,
                 title: 'Go Live',
-                subtitle:
-                    'Pick a channel and start broadcasting your camera.',
+                subtitle: 'Pick a channel and start broadcasting your camera.',
                 buttonLabel: 'Start',
                 color: Colors.red,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const HostScreen()),
-                ),
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const HostScreen())),
               ),
               const SizedBox(height: 32),
               _HowToTestCard(theme: theme),
@@ -189,10 +188,7 @@ class _ActionCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              FilledButton(
-                onPressed: onTap,
-                child: Text(buttonLabel),
-              ),
+              FilledButton(onPressed: onTap, child: Text(buttonLabel)),
             ],
           ),
         ),
@@ -231,11 +227,13 @@ class _HowToTestCard extends StatelessWidget {
             _bullet('Deploy to two devices', theme),
             _bullet('On Device 1: tap "Go Live" and pick a channel', theme),
             _bullet(
-                'On Device 2: tap "Watch Feed" and swipe to that channel',
-                theme),
+              'On Device 2: tap "Watch Feed" and swipe to that channel',
+              theme,
+            ),
             _bullet(
-                'Swipe vertically to switch between channels instantly',
-                theme),
+              'Swipe vertically to switch between channels instantly',
+              theme,
+            ),
           ],
         ),
       ),
@@ -262,9 +260,7 @@ class _HowToTestCard extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white54,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
             ),
           ),
         ],

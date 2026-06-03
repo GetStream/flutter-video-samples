@@ -38,6 +38,7 @@ class _MulticallAppState extends State<MulticallApp> {
       options: StreamVideoOptions(
         logPriority: Priority.debug,
         allowMultipleActiveCalls: true,
+        multiCallAudioPolicy: MultiCallAudioPolicy.suspendIncoming,
       ),
     );
 
@@ -83,7 +84,8 @@ class _UserPickerScreen extends StatelessWidget {
     required String userId,
     required String userName,
     required String userToken,
-  }) onLogin;
+  })
+  onLogin;
 
   @override
   Widget build(BuildContext context) {

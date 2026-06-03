@@ -13,11 +13,19 @@ class UserCredentials {
     required this.userToken,
   });
 
-  factory UserCredentials.fromJson(Map<String, Object?> json) {
+  /// Parses [json] into [UserCredentials], or returns `null` when any required
+  /// field is missing or not a [String] (e.g. legacy or corrupted data).
+  static UserCredentials? tryParse(Map<String, Object?> json) {
+    final userId = json['userId'];
+    final userName = json['userName'];
+    final userToken = json['userToken'];
+    if (userId is! String || userName is! String || userToken is! String) {
+      return null;
+    }
     return UserCredentials(
-      userId: json['userId']! as String,
-      userName: json['userName']! as String,
-      userToken: json['userToken']! as String,
+      userId: userId,
+      userName: userName,
+      userToken: userToken,
     );
   }
 
@@ -49,9 +57,14 @@ class CredentialStore {
   UserCredentials? load() {
     final raw = _prefs.getString(_key);
     if (raw == null) return null;
-    return UserCredentials.fromJson(
-      jsonDecode(raw) as Map<String, Object?>,
-    );
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, Object?>) return null;
+      return UserCredentials.tryParse(decoded);
+    } catch (_) {
+      // Corrupted/legacy blob — treat as no stored credentials.
+      return null;
+    }
   }
 
   Future<void> save(UserCredentials credentials) {

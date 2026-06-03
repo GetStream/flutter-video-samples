@@ -80,7 +80,8 @@ class _UserPickerScreen extends StatelessWidget {
     required String userId,
     required String userName,
     required String userToken,
-  }) onLogin;
+  })
+  onLogin;
 
   @override
   Widget build(BuildContext context) {
@@ -94,16 +95,9 @@ class _UserPickerScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.live_tv,
-                  size: 72,
-                  color: theme.colorScheme.primary,
-                ),
+                Icon(Icons.live_tv, size: 72, color: theme.colorScheme.primary),
                 const SizedBox(height: 16),
-                Text(
-                  'Livestream Feed',
-                  style: theme.textTheme.headlineMedium,
-                ),
+                Text('Livestream Feed', style: theme.textTheme.headlineMedium),
                 const SizedBox(height: 8),
                 Text(
                   'Choose which user to log in as.\n'

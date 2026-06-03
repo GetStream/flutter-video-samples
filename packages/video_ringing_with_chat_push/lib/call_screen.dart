@@ -59,6 +59,29 @@ class _CallScreenState extends State<CallScreen> {
             onCallDisconnected: (_) {
               Navigator.of(context).pop();
             },
+            callContentWidgetBuilder: (context, call) {
+              return StreamCallContent(
+                call: call,
+                callControlsWidgetBuilder: (context, call) {
+                  return StreamCallControls(
+                    options: [
+                      ToggleSpeakerphoneOption(call: call),
+                      ToggleCameraOption(call: call),
+                      ToggleMicrophoneOption(call: call),
+                      FlipCameraOption(call: call),
+                      if (_chatChannel != null)
+                        CallControlOption(
+                          icon: Icon(
+                            _showChat ? Icons.chat : Icons.chat_outlined,
+                          ),
+                          onPressed: () =>
+                              setState(() => _showChat = !_showChat),
+                        ),
+                    ],
+                  );
+                },
+              );
+            },
           ),
           if (_showChat && _chatChannel != null)
             Positioned(
@@ -67,18 +90,13 @@ class _CallScreenState extends State<CallScreen> {
               right: 0,
               child: StreamChannel(
                 channel: _chatChannel!,
-                child: const InCallChat(),
+                child: InCallChat(
+                  onClose: () => setState(() => _showChat = false),
+                ),
               ),
             ),
         ],
       ),
-      floatingActionButton: _chatChannel != null
-          ? FloatingActionButton.small(
-              heroTag: 'chat_toggle',
-              onPressed: () => setState(() => _showChat = !_showChat),
-              child: Icon(_showChat ? Icons.chat_outlined : Icons.chat),
-            )
-          : null,
     );
   }
 }

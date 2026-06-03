@@ -2,6 +2,8 @@
 
 A livestreaming sample app for the [Stream Video Flutter SDK](https://pub.dev/packages/stream_video_flutter) that burns a scoreboard overlay into the host's video via a **native video filter**. The overlay is encoded into the outgoing WebRTC video, so it shows up in the local preview, on every remote viewer, and in HLS/RTMP egress.
 
+> This sample is the runnable companion to the [Video Compositing cookbook guide](https://getstream.io/video/docs/flutter/ui-cookbook/video-compositing/).
+
 > [!IMPORTANT]
 > The predefined API key, user credentials, and channel IDs in this sample should be treated as publicly accessible demo values. If you reuse them, other people running the sample may join the same livestream channels.
 

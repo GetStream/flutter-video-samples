@@ -1,6 +1,6 @@
 name: video_livestream_feed
 description: "A showcase app for a TikTok-style livestream feed with call switching."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  stream_video_flutter: ^1.2.4
+  stream_video_flutter: ^1.4.0
   permission_handler: ^12.0.1
   video_player: ^2.9.3
 
@@ -20,5 +20,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/

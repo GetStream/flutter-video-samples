@@ -1,6 +1,6 @@
 name: video_ringing_with_chat_push
 description: "A showcase app for Stream Video Flutter ringing functionality."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -9,8 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  stream_video_flutter: ^1.2.4
-  stream_video_push_notification: ^1.2.4
+  stream_video_flutter: ^1.4.0
+  stream_video_push_notification: ^1.4.0
   stream_chat: ^9.23.0
   stream_chat_flutter: ^9.23.0
   firebase_core: ^4.1.1
@@ -19,20 +19,6 @@ dependencies:
   permission_handler: ^12.0.1
   flutter_local_notifications: ^20.1.0
   shared_preferences: ^2.5.3
-
-# dependency_overrides:
-#   stream_video_push_notification:
-#     path: ../stream-video-flutter/packages/stream_video_push_notification
-#   stream_video_flutter:
-#     path: ../stream-video-flutter/packages/stream_video_flutter
-#   stream_video:
-#     path: ../stream-video-flutter/packages/stream_video
-#   stream_chat_flutter:
-#     path: ../../stream-chat-flutter/packages/stream_chat_flutter
-#   stream_chat_flutter_core:
-#     path: ../../stream-chat-flutter/packages/stream_chat_flutter_core
-#   stream_chat:
-#     path: ../../stream-chat-flutter/packages/stream_chat
 
 dev_dependencies:
   flutter_test:
