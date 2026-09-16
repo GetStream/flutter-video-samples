@@ -1,0 +1,23 @@
+name: video_livestream_with_chat
+description: "A livestream sample with Stream Chat overlaid on the video: live chat messages, floating reactions, and a host/viewer flow."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.1"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  stream_video_flutter: ^1.6.0
+  stream_chat_flutter: ^9.23.0
+  permission_handler: ^12.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

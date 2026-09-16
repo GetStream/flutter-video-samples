@@ -4,6 +4,7 @@
 This is the official Flutter Samples repository for [Stream Video](https://getstream.io/video), a service for building video calls, audio rooms, and live-streaming applications. This repo includes samples for the following:
 - [Video Meeting with Chat](https://github.com/GetStream/flutter-video-samples/tree/main/packages/video_with_chat)
 - [Messaging with Video Calling](https://github.com/GetStream/flutter-video-samples/tree/main/packages/chat_with_video/chat_with_video_final)
+- [Livestream with Chat Overlay](https://github.com/GetStream/flutter-video-samples/tree/main/packages/video_livestream_with_chat)
 
 <a href="https://getstream.io">
 <img src="https://user-images.githubusercontent.com/24237865/138428440-b92e5fb7-89f8-41aa-96b1-71a5486c5849.png" align="right" width="12%"/>
