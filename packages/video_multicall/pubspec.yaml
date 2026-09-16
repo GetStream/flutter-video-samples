@@ -4,12 +4,13 @@ publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: ^3.9.2
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.1"
 
 dependencies:
   flutter:
     sdk: flutter
-  stream_video_flutter: ^1.4.0
+  stream_video_flutter: ^1.6.0
   permission_handler: ^12.0.1
 
 dev_dependencies:

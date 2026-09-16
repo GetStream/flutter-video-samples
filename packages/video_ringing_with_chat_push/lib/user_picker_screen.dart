@@ -72,8 +72,7 @@ class UserPickerScreen extends StatelessWidget {
     ).client.connectUser(chat.User(id: userId, name: userName), userToken);
     registerChatDevice(
       chatClient,
-      iosPushProviderName: AppConfig.iosPushProviderName,
-      androidPushProviderName: AppConfig.androidPushProviderName,
+      pushProviderName: AppConfig.androidPushProviderName,
     );
 
     Future.delayed(const Duration(seconds: 5), () async {

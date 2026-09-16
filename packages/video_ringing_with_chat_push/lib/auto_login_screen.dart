@@ -53,8 +53,7 @@ class AutoLoginScreenState extends State<AutoLoginScreen> {
       );
       registerChatDevice(
         widget.chatClient,
-        iosPushProviderName: AppConfig.iosPushProviderName,
-        androidPushProviderName: AppConfig.androidPushProviderName,
+        pushProviderName: AppConfig.androidPushProviderName,
       );
 
       if (mounted) {

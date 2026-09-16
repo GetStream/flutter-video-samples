@@ -18,11 +18,31 @@ class _AudioRoomActionsState extends State<AudioRoomActions> {
 
   StreamSubscription? _callEventsSubscription;
 
+  late final SpeakingWhileMutedRecognition _speakingWhileMutedRecognition;
+  late final StreamSubscription<SpeakingWhileMutedState> _speechSubscription;
+
   @override
   void initState() {
     super.initState();
     _microphoneEnabled =
         widget.audioRoomCall.connectOptions.microphone.isEnabled;
+
+    // Warn the user when they start talking while still muted. Detection starts
+    // on its own as soon as they mute, and stops again when they unmute.
+    _speakingWhileMutedRecognition = SpeakingWhileMutedRecognition(
+      call: widget.audioRoomCall,
+    );
+
+    _speechSubscription = _speakingWhileMutedRecognition.stream.listen((state) {
+      if (!state.isSpeakingWhileMuted || !mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You are speaking while muted'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    });
 
     _callEventsSubscription = widget.audioRoomCall.callEvents
         .on<StreamCallPermissionsUpdatedEvent>((
@@ -97,7 +117,15 @@ class _AudioRoomActionsState extends State<AudioRoomActions> {
                   : const Icon(Icons.mic_off),
               onPressed: () {
                 if (_microphoneEnabled) {
-                  widget.audioRoomCall.setMicrophoneEnabled(enabled: false);
+                  widget.audioRoomCall.setMicrophoneEnabled(
+                    enabled: false,
+                    // Keep the audio track alive and send silence instead of
+                    // releasing it. Required on iOS/macOS for the speaking-
+                    // while-muted detection above to receive speech events. The
+                    // trade-off is that the OS microphone indicator stays on
+                    // while muted.
+                    stopTrackOnMute: false,
+                  );
                   setState(() {
                     _microphoneEnabled = false;
                   });
@@ -136,6 +164,8 @@ class _AudioRoomActionsState extends State<AudioRoomActions> {
   @override
   void dispose() {
     _callEventsSubscription?.cancel();
+    _speechSubscription.cancel();
+    _speakingWhileMutedRecognition.dispose();
     super.dispose();
   }
 }

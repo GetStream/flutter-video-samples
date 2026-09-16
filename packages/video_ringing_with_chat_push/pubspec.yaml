@@ -4,13 +4,14 @@ publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: ^3.9.2
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.1"
 
 dependencies:
   flutter:
     sdk: flutter
-  stream_video_flutter: ^1.4.0
-  stream_video_push_notification: ^1.4.0
+  stream_video_flutter: ^1.6.0
+  stream_video_push_notification: ^1.6.0
   stream_chat: ^9.23.0
   stream_chat_flutter: ^9.23.0
   firebase_core: ^4.1.1

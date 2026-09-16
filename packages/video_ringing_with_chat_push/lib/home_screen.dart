@@ -341,8 +341,7 @@ class _DeviceTokensScreenState extends State<_DeviceTokensScreen> {
         final chatClient = StreamChat.of(context).client;
         registerChatDevice(
           chatClient,
-          iosPushProviderName: AppConfig.iosPushProviderName,
-          androidPushProviderName: AppConfig.androidPushProviderName,
+          pushProviderName: AppConfig.androidPushProviderName,
         );
       }
 
