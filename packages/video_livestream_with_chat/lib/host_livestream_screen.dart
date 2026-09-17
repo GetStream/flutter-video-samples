@@ -53,6 +53,10 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
       return;
     }
 
+    // A co-host may already have taken the stream live; only whoever starts
+    // the broadcast needs to call `goLive`.
+    if (!widget.call.state.value.isBackstage) return;
+
     final goLiveResult = await widget.call.goLive();
     if (goLiveResult.isFailure) {
       _showMessage('Failed to go live.');
@@ -120,13 +124,13 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
   }
 }
 
-/// What the host sees of their own broadcast.
+/// What the hosts see of their own broadcast.
 ///
-/// Renders the local camera track directly rather than going through
-/// `StreamCallContent`: that widget brings its own app bar and call controls
-/// and letterboxes the video to make room for them, but this screen draws all
-/// of its own chrome over a full-bleed frame — the same way the viewer's
-/// `LivestreamPlayer` does.
+/// Uses `StreamLivestreamHosts` — the same widget `LivestreamPlayer` renders
+/// internally — so the host sees their broadcast laid out exactly as viewers
+/// do, including when there are co-hosts. Going through `StreamCallContent`
+/// instead would add an app bar and call controls and letterbox the video to
+/// make room for them.
 class _HostPreview extends StatelessWidget {
   const _HostPreview({required this.call});
 
@@ -136,46 +140,80 @@ class _HostPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return PartialCallStateBuilder(
       call: call,
-      selector: (state) => state.localParticipant,
-      builder: (context, localParticipant) {
-        if (localParticipant == null || !localParticipant.isVideoEnabled) {
-          return const _CameraOffPlaceholder();
-        }
+      selector: (state) =>
+          state.callParticipants.where((p) => p.isVideoEnabled).toList(),
+      builder: (context, hosts) {
+        if (hosts.isEmpty) return _NoVideoPlaceholder(call: call);
 
-        return StreamCallParticipant(
-          call: call,
-          participant: localParticipant,
-          videoFit: VideoFit.cover,
-          backgroundColor: Colors.black,
-          showParticipantLabel: false,
-          showConnectionQualityIndicator: false,
-          showSpeakerBorder: false,
+        // With co-hosts it stops being obvious who is who, so label the tiles.
+        final showLabels = hosts.length > 1;
+
+        return StreamLivestreamTheme(
+          // The grid insets its tiles by 4px, which shows up as a border
+          // around a full-screen broadcast. Drop the outer padding; the
+          // between-tile spacing still separates co-hosts.
+          data: StreamLivestreamTheme.of(
+            context,
+          ).copyWith(hostsGridPadding: EdgeInsets.zero),
+          child: StreamLivestreamHosts(
+            call: call,
+            hosts: hosts,
+            callParticipantBuilder: (context, call, host) =>
+                StreamCallParticipant(
+                  key: ValueKey('${host.uniqueParticipantKey}-livehost-video'),
+                  rendererScopePrefix: 'livehost',
+                  call: call,
+                  participant: host,
+                  videoFit: VideoFit.cover,
+                  backgroundColor: Colors.black,
+                  showParticipantLabel: showLabels,
+                  showConnectionQualityIndicator: false,
+                  showSpeakerBorder: showLabels,
+                ),
+          ),
         );
       },
     );
   }
 }
 
-class _CameraOffPlaceholder extends StatelessWidget {
-  const _CameraOffPlaceholder();
+/// Shown while nobody on the call is publishing video.
+class _NoVideoPlaceholder extends StatelessWidget {
+  const _NoVideoPlaceholder({required this.call});
+
+  final Call call;
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: Colors.black,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.videocam_off, size: 48, color: Colors.white38),
-            SizedBox(height: 12),
-            Text(
-              'Camera is off — viewers still hear you',
-              style: TextStyle(color: Colors.white54),
+    return PartialCallStateBuilder(
+      call: call,
+      selector: (state) => state.localParticipant?.isAudioEnabled ?? false,
+      builder: (context, isMicrophoneEnabled) {
+        return ColoredBox(
+          color: Colors.black,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isMicrophoneEnabled ? Icons.videocam_off : Icons.mic_off,
+                  size: 48,
+                  color: Colors.white38,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  isMicrophoneEnabled
+                      ? 'Camera is off — viewers can still hear you'
+                      : 'Camera and microphone are off — '
+                            'you are not broadcasting',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white54),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

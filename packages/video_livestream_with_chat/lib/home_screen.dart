@@ -21,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isStarting = false;
 
-  bool get _isHost => widget.user.id == AppConfig.host.id;
+  bool get _isHost => AppConfig.isHost(widget.user.id);
 
   Future<void> _start() async {
     if (_isStarting) return;
@@ -63,9 +63,16 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
 
+    // Every host is added as a member with the `host` role, not just whoever
+    // happens to create the call. On the `livestream` call type only hosts may
+    // publish, so a co-host who joined a call someone else created would
+    // otherwise connect with their camera and mic blocked.
     final result = _isHost
         ? await call.getOrCreate(
-            members: [MemberRequest(userId: widget.user.id, role: 'host')],
+            members: [
+              for (final host in AppConfig.hosts)
+                MemberRequest(userId: host.id, role: 'host'),
+            ],
           )
         : await call.getOrCreate();
 
@@ -155,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? 'Start broadcasting. Viewer messages and reactions show '
                           'up over your own camera preview, so you can read '
                           'the room while you stream.'
-                    : 'Watch ${AppConfig.host.name} and join the conversation. '
+                    : 'Watch the hosts and join the conversation. '
                           'Chat is overlaid on the video, and the heart and '
                           'clap buttons send live reactions everyone sees.',
                 style: theme.textTheme.bodySmall?.copyWith(

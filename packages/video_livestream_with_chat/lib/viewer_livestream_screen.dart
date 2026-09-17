@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart' show Channel;
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 
-import 'app_config.dart';
 import 'livestream_chat_overlay.dart';
 import 'livestream_control_rail.dart';
 import 'livestream_reactions.dart';
@@ -64,6 +63,10 @@ class _ViewerLivestreamScreenState extends State<ViewerLivestreamScreen> {
                 joinBehaviour: LivestreamJoinBehaviour.autoJoinWhenLive,
                 videoFit: _isFullscreen ? VideoFit.cover : VideoFit.contain,
                 showParticipantCount: false,
+                // Defaults to false, which renders only the first streaming
+                // participant — viewers would miss every co-host.
+                showMultipleHosts: true,
+                layoutMode: ParticipantLayoutMode.grid,
                 // This screen draws its own chrome.
                 backButtonBuilder: (_) => const SizedBox.shrink(),
                 livestreamControlsWidgetBuilder: (_, __) =>
@@ -147,8 +150,7 @@ class _WaitingForHost extends StatelessWidget {
               Text('Waiting for the host…', style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               Text(
-                'The livestream starts as soon as ${AppConfig.host.name} '
-                'goes live.',
+                'The livestream starts as soon as a host goes live.',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white60,

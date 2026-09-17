@@ -18,7 +18,7 @@ class LivestreamChatMessage extends StatelessWidget {
     final user = message.user;
     if (user == null) return const SizedBox.shrink();
 
-    final isHost = user.id == AppConfig.host.id;
+    final isHost = AppConfig.isHost(user.id);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

@@ -25,16 +25,18 @@ class AppConfig {
   /// Your Stream API key from the Stream Dashboard.
   static const String streamApiKey = 'mmhfdzb5evj2';
 
-  /// The host goes live; everyone else watches and chats.
-  static const SampleUser host = SampleUser(
-    id: 'alice_johnson',
-    name: 'Alice Johnson',
-    image: 'https://robohash.org/alice_johnson',
-    token:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYWxpY2Vfam9obnNvbiJ9.v6-yXWgbLyykj9yt_ophmaC5FCGAG9ic6p02V09CmKQ',
-  );
-
-  static const List<SampleUser> viewers = [
+  /// The hosts go live; everyone else watches and chats.
+  ///
+  /// More than one host is supported: every host publishes camera and mic, and
+  /// they appear together in a grid for each other and for viewers.
+  static const List<SampleUser> hosts = [
+    SampleUser(
+      id: 'alice_johnson',
+      name: 'Alice Johnson',
+      image: 'https://robohash.org/alice_johnson',
+      token:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYWxpY2Vfam9obnNvbiJ9.v6-yXWgbLyykj9yt_ophmaC5FCGAG9ic6p02V09CmKQ',
+    ),
     SampleUser(
       id: 'bob_smith',
       name: 'Bob Smith',
@@ -42,6 +44,9 @@ class AppConfig {
       token:
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYm9iX3NtaXRoIn0.rYCa73497wMkuiNC9P8xoEiiXlMxX_CJwBzU33-ZbHY',
     ),
+  ];
+
+  static const List<SampleUser> viewers = [
     SampleUser(
       id: 'carol_davis',
       name: 'Carol Davis',
@@ -58,9 +63,12 @@ class AppConfig {
     ),
   ];
 
+  /// Whether [userId] broadcasts rather than watches.
+  static bool isHost(String userId) => hosts.any((host) => host.id == userId);
+
   /// The shared livestream. The Chat channel reuses this id, so the video call
   /// and the chat channel always stay in sync.
-  static const String livestreamId = 'livestream-with-chat-demo';
+  static const String livestreamId = 'livestream-with-chat-demo-2';
   static const String livestreamName = 'Live from the studio';
 
   /// Chat channel type used for the livestream chat.

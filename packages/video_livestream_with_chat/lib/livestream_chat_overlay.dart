@@ -34,12 +34,19 @@ class LivestreamChatOverlay extends StatelessWidget {
       child: Align(
         alignment: Alignment.bottomCenter,
         child: DecoratedBox(
-          decoration: const BoxDecoration(
+          // A light scrim, not a panel: it only has to lift the text off the
+          // video. The stream stays visible all the way to the bottom of the
+          // screen, and the message shadows do the rest of the legibility work.
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.transparent, Colors.black54, Colors.black87],
-              stops: [0, 0.55, 1],
+              colors: [
+                Colors.transparent,
+                Colors.black.withValues(alpha: 0.28),
+                Colors.black.withValues(alpha: 0.5),
+              ],
+              stops: const [0, 0.45, 1],
             ),
           ),
           child: Column(

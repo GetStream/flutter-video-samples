@@ -121,25 +121,28 @@ class _UserPickerScreenState extends State<_UserPickerScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Run on two devices.\n'
-                  'Log in as ${AppConfig.host.name} on one to go live.\n'
-                  'Log in as a viewer on the other to watch, chat, and react.',
+                  'Run on two or more devices.\n'
+                  'Log in as a host to go live — log in as both hosts to see '
+                  'them share the broadcast.\n'
+                  'Log in as a viewer to watch, chat, and react.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: Colors.white70,
                   ),
                 ),
                 const SizedBox(height: 40),
-                _UserButton(
-                  user: AppConfig.host,
-                  label: '${AppConfig.host.name} (host)',
-                  icon: Icons.podcasts,
-                  isPrimary: true,
-                  isLoading: _loggingInUserId == AppConfig.host.id,
-                  onPressed: () => _login(AppConfig.host),
-                ),
-                for (final viewer in AppConfig.viewers) ...[
+                for (final host in AppConfig.hosts) ...[
+                  _UserButton(
+                    user: host,
+                    label: '${host.name} (host)',
+                    icon: Icons.podcasts,
+                    isPrimary: true,
+                    isLoading: _loggingInUserId == host.id,
+                    onPressed: () => _login(host),
+                  ),
                   const SizedBox(height: 12),
+                ],
+                for (final viewer in AppConfig.viewers) ...[
                   _UserButton(
                     user: viewer,
                     label: '${viewer.name} (viewer)',
@@ -148,6 +151,7 @@ class _UserPickerScreenState extends State<_UserPickerScreen> {
                     isLoading: _loggingInUserId == viewer.id,
                     onPressed: () => _login(viewer),
                   ),
+                  const SizedBox(height: 12),
                 ],
               ],
             ),

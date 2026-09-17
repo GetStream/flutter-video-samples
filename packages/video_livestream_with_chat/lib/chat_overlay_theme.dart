@@ -14,6 +14,12 @@ import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 StreamChatThemeData buildChatOverlayTheme() {
   return StreamChatThemeData(
     brightness: Brightness.dark,
+    // The message list paints a solid background by default (the dark theme's
+    // `barsBg`), which over video reads as an opaque black panel no matter how
+    // light the overlay's own scrim is.
+    messageListViewTheme: const StreamMessageListViewThemeData(
+      backgroundColor: Colors.transparent,
+    ),
     messageInputTheme: StreamMessageInputThemeData(
       elevation: 0,
       shadow: const BoxShadow(color: Colors.transparent),
