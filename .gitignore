@@ -130,3 +130,4 @@ env.g.dart
 **/fastlane/test_output
 /video-buddy-session.json
 
+.stream/

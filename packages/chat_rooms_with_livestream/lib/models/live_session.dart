@@ -95,32 +95,72 @@ class LiveSession {
   }
 }
 
+/// The newest announcement in [messages], live or ended.
+///
+/// Kept separate from [liveSessionIn] because "no announcement here" and "the
+/// announcement says the stream ended" are different answers, and
+/// [liveSessionFrom] has to tell them apart to know whether to keep looking.
+LiveSession? _newestAnnouncementIn(Iterable<Message> messages) {
+  for (final message in messages.toList().reversed) {
+    if (message.isDeleted) continue;
+    final session = LiveSession.fromMessage(message);
+    if (session != null) return session;
+  }
+  return null;
+}
+
 /// The livestream currently running in [messages], or `null` if none is.
 ///
 /// Reads newest-first and stops at the first announcement it finds, so a stream
 /// that has ended does not keep an older, still-unstamped one alive.
 LiveSession? liveSessionIn(Iterable<Message> messages) {
-  for (final message in messages.toList().reversed) {
-    if (message.isDeleted) continue;
-    final session = LiveSession.fromMessage(message);
-    if (session == null) continue;
-    return session.isLive ? session : null;
-  }
-  return null;
+  final session = _newestAnnouncementIn(messages);
+  return session != null && session.isLive ? session : null;
 }
 
-/// The room's live state, derived from its messages.
+/// The room's live state, preferring the *pinned* announcement.
+///
+/// [loaded] only ever holds the page of history the client currently has. In a
+/// busy room the announcement is pushed out of that page within minutes - a
+/// stream can still be running while every live indicator has quietly gone
+/// dark, leaving no way to join it. Pinned messages come back with the channel
+/// itself, independent of how much chat has happened since, so they stay
+/// reachable however long the stream runs.
+///
+/// [loaded] remains the fallback so announcements posted before pinning
+/// existed, or whose pin write failed, still work.
+LiveSession? liveSessionFrom({
+  required Iterable<Message> pinned,
+  required Iterable<Message> loaded,
+}) {
+  final fromPinned = _newestAnnouncementIn(pinned);
+  if (fromPinned != null) return fromPinned.isLive ? fromPinned : null;
+  return liveSessionIn(loaded);
+}
+
+/// The room's live state, derived from its pinned and loaded messages.
+///
+/// Watches the whole channel state rather than just `messagesStream`, because
+/// the pin is what makes this survive a busy room and pin changes do not show
+/// up on the message stream.
 ///
 /// Deduped on call id so the surfaces watching it only rebuild when the room
 /// actually starts or stops being live, not on every message that arrives.
 Stream<LiveSession?> liveSessionStream(Channel channel) =>
-    (channel.state?.messagesStream ?? const Stream<List<Message>>.empty())
-        .map(liveSessionIn)
+    (channel.state?.channelStateStream ?? const Stream<ChannelState>.empty())
+        .map(
+          (state) => liveSessionFrom(
+            pinned: state.pinnedMessages ?? const [],
+            loaded: state.messages ?? const [],
+          ),
+        )
         .distinct((a, b) => a?.callId == b?.callId);
 
 /// The room's live state right now, for `initialData`.
-LiveSession? currentLiveSession(Channel channel) =>
-    liveSessionIn(channel.state?.messages ?? const []);
+LiveSession? currentLiveSession(Channel channel) => liveSessionFrom(
+  pinned: channel.state?.pinnedMessages ?? const [],
+  loaded: channel.state?.messages ?? const [],
+);
 
 /// Call id pinned at build time, so a load test knows it up front.
 ///

@@ -23,7 +23,28 @@ Future<Message> postLiveAnnouncement({
     ),
   );
 
-  return response.message;
+  final announcement = response.message;
+
+  // Pin it, so viewers can still find it once the room gets busy.
+  //
+  // Live state is read from this message, and a client only holds a page of
+  // history: in an active room the announcement scrolls out of that page within
+  // minutes, and every live indicator goes dark while the stream is still
+  // running. Pinned messages come back with the channel itself, so they stay
+  // reachable no matter how much has been said since.
+  //
+  // Pinning is a partial update of the host's own message, so it needs no grant
+  // beyond the one already used to mark the stream ended.
+  try {
+    await channel.pinMessage(announcement);
+  } on StreamChatError catch (e) {
+    // Non-fatal: `liveSessionFrom` still falls back to the loaded messages, so
+    // an unpinned stream behaves exactly as it did before - it just stops being
+    // discoverable once the room fills up.
+    debugPrint('Could not pin the live announcement: ${e.message}');
+  }
+
+  return announcement;
 }
 
 /// Takes [channel] back out of its live state by stamping `endedAt` onto the
@@ -42,6 +63,10 @@ Future<void> markLiveAnnouncementEnded({
       announcement,
       set: {
         'attachments': [session.endedNow().toAttachment().toData()],
+        // Unpin in the same write. The `endedAt` stamp is what actually ends
+        // the stream for readers; clearing the pin just stops a finished
+        // broadcast from sitting in the room's pinned list forever.
+        'pinned': false,
       },
     );
   } on StreamChatError catch (e) {
