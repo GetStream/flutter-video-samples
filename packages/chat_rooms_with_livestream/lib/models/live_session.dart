@@ -122,9 +122,20 @@ Stream<LiveSession?> liveSessionStream(Channel channel) =>
 LiveSession? currentLiveSession(Channel channel) =>
     liveSessionIn(channel.state?.messages ?? const []);
 
+/// Call id pinned at build time, so a load test knows it up front.
+///
+/// Empty unless the app was built with `--dart-define=STREAM_BENCH_CALL_ID=...`.
+const _pinnedCallId = String.fromEnvironment('STREAM_BENCH_CALL_ID');
+
 /// Builds the call id for a new broadcast in [channelId].
 ///
 /// Deriving it from the channel id keeps every call traceable back to the room
 /// it started in; the timestamp suffix keeps repeat broadcasts distinct.
-String newLiveCallId(String channelId) =>
-    '$channelId-live-${DateTime.now().millisecondsSinceEpoch}';
+///
+/// [_pinnedCallId] overrides both, because the benchmark's bot viewers have to
+/// join the call without being able to read it out of chat first. Viewers in
+/// the app are unaffected either way - they take [LiveSession.callId] from the
+/// announcement, so they follow whichever id the host actually used.
+String newLiveCallId(String channelId) => _pinnedCallId.isNotEmpty
+    ? _pinnedCallId
+    : '$channelId-live-${DateTime.now().millisecondsSinceEpoch}';
