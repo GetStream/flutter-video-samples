@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
+import 'bench/bench.dart';
+import 'bench/bench_overlay.dart';
 import 'env/env.dart';
 import 'screens/login_screen.dart';
 import 'theme.dart';
@@ -14,7 +18,13 @@ void main() {
   final chatClient = StreamChatClient(
     Env.streamApiKey,
     logLevel: Level.WARNING,
+    logHandlerFunction: Bench.enabled
+        ? Bench.instance.chatLog
+        : StreamChatClient.defaultLogHandler,
   );
+
+  // Benchmark mode only (`--dart-define=STREAM_BENCH=true`); a no-op otherwise.
+  unawaited(Bench.instance.start(chatClient: chatClient));
 
   runApp(CreatorRoomsApp(chatClient: chatClient));
 }
@@ -42,7 +52,7 @@ class CreatorRoomsApp extends StatelessWidget {
             backgroundColor: AppColors.background,
           ),
         ),
-        child: child!,
+        child: BenchOverlay(child: child!),
       ),
       home: const LoginScreen(),
     );

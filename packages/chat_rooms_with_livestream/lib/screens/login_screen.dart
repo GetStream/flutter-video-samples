@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart' as video;
 
+import '../bench/bench.dart';
 import '../env/env.dart';
 import '../models/app_user.dart';
 import '../rooms.dart';
@@ -49,7 +50,9 @@ class _LoginScreenState extends State<LoginScreen> {
           image: user.image,
         ),
         userToken: user.token,
+        options: Bench.instance.videoOptions(),
       );
+      Bench.instance.session(user);
 
       // The rooms are predefined in code and materialised on Stream the
       // first time anyone signs in.

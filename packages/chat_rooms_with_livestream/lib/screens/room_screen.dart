@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart' as video;
 
+import '../bench/bench.dart';
 import '../models/app_user.dart';
 import '../models/live_session.dart';
 import '../models/room.dart';
@@ -33,9 +34,28 @@ class _RoomScreenState extends State<RoomScreen> {
   bool _joining = false;
   bool _fullscreen = false;
 
+  /// The room's channel, followed by benchmark mode for chat-side counts.
+  Channel? _benchChannel;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final channel = StreamChannel.of(context).channel;
+    if (identical(channel, _benchChannel)) return;
+    if (_benchChannel case final previous?) {
+      Bench.instance.detachChannel(previous);
+    }
+    Bench.instance.attachChannel(channel);
+    _benchChannel = channel;
+  }
+
   @override
   void dispose() {
+    if (_benchChannel case final channel?) {
+      Bench.instance.detachChannel(channel);
+    }
     // Leaving the room leaves the stream.
+    if (_watchCall case final call?) Bench.instance.detachCall(call);
     unawaited(_watchCall?.leave());
     _composerController.dispose();
     _focusNode.dispose();
@@ -51,6 +71,9 @@ class _RoomScreenState extends State<RoomScreen> {
       callType: video.StreamCallType.liveStream(),
       id: session.callId,
     );
+    // Attached before the player joins, so time-to-first-frame is measured
+    // from the tap.
+    Bench.instance.attachCall(call, role: 'viewer');
     final result = await call.getOrCreate();
 
     if (!mounted) return;
@@ -60,6 +83,7 @@ class _RoomScreenState extends State<RoomScreen> {
         _joining = false;
       }),
       failure: (f) {
+        Bench.instance.detachCall(call);
         setState(() => _joining = false);
         _snack('Could not open the stream: ${f.error.message}');
       },
@@ -75,6 +99,7 @@ class _RoomScreenState extends State<RoomScreen> {
       _watchCall = null;
       _fullscreen = false;
     });
+    Bench.instance.detachCall(call);
     await call.leave();
   }
 

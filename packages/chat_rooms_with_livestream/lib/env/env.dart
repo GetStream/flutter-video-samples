@@ -26,25 +26,25 @@ abstract class Env {
   /// Shared by Stream Chat and Stream Video - one project, one key.
   static const String streamApiKey = String.fromEnvironment(
     'STREAM_API_KEY',
-    defaultValue: 'mmhfdzb5evj2',
+    defaultValue: 'xf5bwmvkbysn',
   );
 
-  static const String sampleUserId00 = 'alice_johnson';
+  static const String sampleUserId00 = 'alice';
   static const String sampleUserName00 = 'Alice Johnson';
   static const String sampleUserImage00 = 'https://robohash.org/alice_johnson';
   static const String sampleUserToken00 = String.fromEnvironment(
     'STREAM_TOKEN_00',
     defaultValue:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYWxpY2Vfam9obnNvbiJ9.v6-yXWgbLyykj9yt_ophmaC5FCGAG9ic6p02V09CmKQ',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYWxpY2UifQ.SETqHpeTYZU4JhzoFxwTl9Lz8irfsZFUClDS9lMGDJs',
   );
 
-  static const String sampleUserId01 = 'bob_smith';
+  static const String sampleUserId01 = 'bob';
   static const String sampleUserName01 = 'Bob Smith';
   static const String sampleUserImage01 = 'https://robohash.org/bob_smith';
   static const String sampleUserToken01 = String.fromEnvironment(
     'STREAM_TOKEN_01',
     defaultValue:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYm9iX3NtaXRoIn0.rYCa73497wMkuiNC9P8xoEiiXlMxX_CJwBzU33-ZbHY',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYm9iIn0.ILrjAivIskeAzf31AzQN_qEi04nuPXsHm90Jw3-JOTA',
   );
 
   static const String sampleUserId02 = 'carol_davis';
@@ -56,13 +56,13 @@ abstract class Env {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2Fyb2xfZGF2aXMifQ.2_qXNlnlSeAJz_YVB6goKSne2KD2b_zMT5SwXHY0MLo',
   );
 
-  static const String sampleUserId03 = 'david_lee';
-  static const String sampleUserName03 = 'David Lee';
+  static const String sampleUserId03 = 'charlie';
+  static const String sampleUserName03 = 'Charlie Lee';
   static const String sampleUserImage03 = 'https://robohash.org/david_lee';
   static const String sampleUserToken03 = String.fromEnvironment(
     'STREAM_TOKEN_03',
     defaultValue:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZGF2aWRfbGVlIn0.7cMS9jgKUZyX1nrZxIlFQSCaesf2Wijx6jsNvPYdabs',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2hhcmxpZSJ9.I9qNVFKcWqAbfSyTXcnbESqJr6bCObKCrKiRux10ChgeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2hhcmxpZSJ9.I9qNVFKcWqAbfSyTXcnbESqJr6bCObKCrKiRux10Chg',
   );
 
   static const String sampleUserId04 = 'eva_martinez';

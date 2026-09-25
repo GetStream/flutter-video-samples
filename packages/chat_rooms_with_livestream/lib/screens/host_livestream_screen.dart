@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart' as chat;
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 
+import '../bench/bench.dart';
 import '../live_announcements.dart';
 import '../models/app_user.dart';
 import '../models/live_session.dart';
@@ -77,6 +78,7 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
     // Safety net for a pop that bypassed "End stream": take the room back out
     // of its live state, then release the call.
     if (_announced) unawaited(_markAnnouncementEnded());
+    if (_call case final call?) Bench.instance.detachCall(call);
     unawaited(_call?.leave());
     super.dispose();
   }
@@ -100,6 +102,8 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
       id: _callId,
     );
 
+    Bench.instance.attachCall(call, role: 'host');
+
     final created = await call.getOrCreate(
       // The `host` role is what grants join-backstage on the livestream call
       // type, so the creator can set up before anyone can watch.
@@ -116,6 +120,7 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
 
         joined.fold(
           success: (_) {
+            Bench.instance.mark('host_joined', {'callId': call.id});
             if (mounted) {
               setState(() {
                 _call = call;
@@ -139,7 +144,9 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
     if (call == null) return;
     setState(() => _busy = true);
 
+    Bench.instance.mark('go_live_tap');
     final result = await call.goLive();
+    Bench.instance.mark('go_live_done', {'ok': result.isSuccess});
 
     await result.fold(
       success: (_) async {
@@ -203,8 +210,10 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
     await _markAnnouncementEnded();
     _announced = false;
 
+    Bench.instance.mark('end_stream_tap');
     await call.stopLive();
     await call.end();
+    Bench.instance.detachCall(call);
     await call.leave();
 
     if (mounted) {

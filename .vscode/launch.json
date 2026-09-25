@@ -1,0 +1,67 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "audio_room_with_chat",
+            "cwd": "packages/audio_room_with_chat",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "chat_with_video_call",
+            "cwd": "packages/chat_with_video_call",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "video_livestream_feed",
+            "cwd": "packages/video_livestream_feed",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "video_livestream_overlay",
+            "cwd": "packages/video_livestream_overlay",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "video_livestream_with_call",
+            "cwd": "packages/video_livestream_with_call",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "video_multicall",
+            "cwd": "packages/video_multicall",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "video_ringing_with_chat_push",
+            "cwd": "packages/video_ringing_with_chat_push",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "chat_rooms_with_livestream",
+            "cwd": "packages/chat_rooms_with_livestream",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "chat_rooms_with_livestream (profile mode)",
+            "cwd": "packages/chat_rooms_with_livestream",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "toolArgs": [
+                "--dart-define-from-file=bench_env.json",
+                "--dart-define=STREAM_BENCH=true"
+            ]
+        }
+    ]
+}

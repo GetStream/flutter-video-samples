@@ -1,0 +1,41 @@
+{
+  "title": "Pixel 6a Viewer Run",
+  "eyebrow": "Livestream benchmark · viewer side · smoke run",
+  "h1": "Pixel 6a viewer run",
+  "lede": "The recording is complete and valid. About 50 bots joined for roughly 15 seconds. That had no measurable effect on the video the viewer received. The one regression was UI jank, and it lines up with the bots' chat messages, not with the call's participant updates. This run is a check that the recording works, not the 10k test.",
+  "tiles": [
+    {"status": "good", "pill": "Unaffected", "value": "720×960 · 30 fps", "label": "Received video before, during and after the bots joined: ~2.45 Mbps, 0% loss, 0 freezes after startup"},
+    {"status": "good", "pill": "Fast", "value": "≤ 3.1 s", "label": "Tap \"Watch now\" to first decoded frame (call connected in 1.1 s)"},
+    {"status": "warn", "pill": "Regressed", "value": "15% janky", "label": "Frames over budget while chat messages arrived, vs 0% while only watching"},
+    {"status": "good", "pill": "Flat", "value": "~130% CPU", "label": "Of one core while watching (8 cores). The 50 bots didn't change it measurably"}
+  ],
+  "phaseNames": {"0": "In the app, not watching", "7": "After leaving"},
+  "findings": [
+    {
+      "tag": "Video",
+      "title": "The video pipeline didn't notice the bots",
+      "paragraphs": ["The received stream held 720×960 at 30 fps and 2.4–2.5 Mbps for the whole run, with 0% loss. Hardware decode (<code>c2.exynos.h264.decoder</code>) took 8–9.7 ms per frame. The only freeze (0.23 s) was in the first seconds after joining."]
+    },
+    {
+      "tag": "UI thread",
+      "title": "Jank follows the chat messages, not the participant joins and leaves",
+      "paragraphs": [
+        "While the bots posted ~5 chat messages per second, 4–6 frames per second overran the budget and build p90 rose to 15–38 ms. Raster stayed at ~11 ms, so the cost is Dart/build work, not the GPU.",
+        "Joins at ~10 call updates per second caused no jank, and all 50 bots leaving in one second caused 2 janky frames. Janky seconds correlate with chat messages (r = 0.94), not with call state updates (r = 0.1)."
+      ]
+    },
+    {
+      "tag": "SDK logs",
+      "title": "10 warnings, none linked to a user-visible problem",
+      "bullets": [
+        "<code>[join] rejected (a call with the same cid is in progress)</code> when watching started: a second join attempt on the same call, rejected harmlessly.",
+        "On leave: <code>removeTrack(): sender is null</code> ×2 and socket close code 1001: normal teardown noise."
+      ]
+    }
+  ],
+  "nextTitle": "Before the 10k run",
+  "next": [
+    "<b>Hold each load level for at least a minute.</b> No <code>plateau</code> mark was written, because the load never held for 10 s.",
+    "<b>Unplug the phones.</b> This one was charging at 100%, so battery data can't be used."
+  ]
+}
