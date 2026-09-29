@@ -18,6 +18,22 @@ dependencies:
   path_provider: ^2.1.5
   share_plus: ^12.0.2
 
+dependency_overrides:
+  stream_video:
+    git:
+      url: https://github.com/GetStream/stream-video-flutter.git
+      path: packages/stream_video
+      ref: 7afb1deae5ddafbeb8bcd835d5a6e9b0e8a62c1f
+  stream_video_flutter:
+    git:
+      url: https://github.com/GetStream/stream-video-flutter.git
+      path: packages/stream_video_flutter
+      ref: 7afb1deae5ddafbeb8bcd835d5a6e9b0e8a62c1f
+  stream_webrtc_flutter:
+    git:
+      url: https://github.com/GetStream/webrtc-flutter.git
+      ref: b9df60da1c92b5c56cfe79b6af51b68cf0a97622
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
