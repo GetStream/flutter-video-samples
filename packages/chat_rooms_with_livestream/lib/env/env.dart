@@ -62,7 +62,7 @@ abstract class Env {
   static const String sampleUserToken03 = String.fromEnvironment(
     'STREAM_TOKEN_03',
     defaultValue:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2hhcmxpZSJ9.I9qNVFKcWqAbfSyTXcnbESqJr6bCObKCrKiRux10ChgeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2hhcmxpZSJ9.I9qNVFKcWqAbfSyTXcnbESqJr6bCObKCrKiRux10Chg',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2hhcmxpZSJ9.I9qNVFKcWqAbfSyTXcnbESqJr6bCObKCrKiRux10Chg',
   );
 
   static const String sampleUserId04 = 'eva_martinez';

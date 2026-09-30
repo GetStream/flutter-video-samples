@@ -508,7 +508,13 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
                   ],
                 ),
               ),
-              Expanded(child: chat.StreamMessageListView()),
+              Expanded(
+                child: chat.StreamMessageListView(
+                  config: const chat.StreamMessageListViewConfiguration(
+                    maximumMessageLimit: 300,
+                  ),
+                ),
+              ),
               chat.StreamMessageComposer(),
             ],
           ),

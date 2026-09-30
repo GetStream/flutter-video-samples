@@ -16,9 +16,10 @@ dependencies:
   # Benchmark mode only (lib/bench/): where the recording is written, and
   # handing it off the device.
   path_provider: ^2.1.5
-  share_plus: ^12.0.2
+  share_plus: ^13.3.0
 
 dependency_overrides:
+  file_picker: ^12.0.0-beta.5
   stream_video:
     git:
       url: https://github.com/GetStream/stream-video-flutter.git
@@ -29,10 +30,20 @@ dependency_overrides:
       url: https://github.com/GetStream/stream-video-flutter.git
       path: packages/stream_video_flutter
       ref: 7afb1deae5ddafbeb8bcd835d5a6e9b0e8a62c1f
+  stream_chat:
+    git:
+      url: https://github.com/GetStream/stream-chat-flutter.git
+      path: packages/stream_chat
+      ref: 01ccd2c43f76593a03959d8567394bd3593a3a84
+  stream_chat_flutter:
+    git:
+      url: https://github.com/GetStream/stream-chat-flutter.git
+      path: packages/stream_chat_flutter
+      ref: 01ccd2c43f76593a03959d8567394bd3593a3a84
   stream_webrtc_flutter:
     git:
       url: https://github.com/GetStream/webrtc-flutter.git
-      ref: b9df60da1c92b5c56cfe79b6af51b68cf0a97622
+      ref: 8ee6ab18014676b0dfc53f16947807d8f2af347e
 
 dev_dependencies:
   flutter_test:
