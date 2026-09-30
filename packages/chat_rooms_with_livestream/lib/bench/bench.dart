@@ -55,7 +55,8 @@ import 'rtc_digest.dart';
 class Bench {
   Bench._();
 
-  static const enabled = bool.fromEnvironment('STREAM_BENCH');
+  /// Mobile only: the recording is written with `dart:io`, which web lacks.
+  static const enabled = bool.fromEnvironment('STREAM_BENCH') && !kIsWeb;
   static final instance = Bench._();
 
   static const _channel = MethodChannel('creator_rooms/bench');
