@@ -59,6 +59,8 @@ recording started (monotonic, use it to line up lines). See the doc comment on
 | `status` | on change | call status (Joined, Reconnecting, Migrating, ...), chat websocket status |
 | `life` | on change | app lifecycle, memory-pressure warnings |
 | `log` | as they happen | SDK warnings and errors, capped at 20 per second (the cap is reported as `logsDropped`) |
+| `native` | as they happen | a platform-channel call whose round trip took 50 ms or more: channel, method, start and duration. Capped at 20 per second (`nativeDropped`). Per-second totals (`calls`, `slow`, `maxMs`, `maxCall`) are in each `s` line under `native` |
+| `stall` | when the Dart event loop was blocked 100 ms or more | how long (`lagMs`), when it started (`fromMs`), and the native calls in flight or finishing during it |
 
 `dev` fields differ by platform: Android also reports Java/native heap, PSS
 (every 10 s), battery temperature and current, and thermal headroom; iOS
@@ -88,3 +90,23 @@ On top of the app's normal work, one sample per second: one method-channel call,
 one JSON line (~1-2 KB) and a flush; plus a 50 ms timer for event-loop lag. The
 `otherParticipants` timing runs once per sample, not on every state update, so
 the benchmark does not add the per-update cost it is trying to measure.
+
+### Native call timing
+
+In benchmark mode `main()` installs `BenchBinding` (`native_calls.dart`), which
+wraps the app's binary messenger and times every platform-channel call from the
+Dart side, including the WebRTC fork's `FlutterWebRTC.Method` calls the Video
+SDK makes. No SDK or fork change is needed.
+
+Since Flutter 3.29 Dart runs on the platform main thread, so a native handler
+that blocks that thread blocks Dart too. Read the two line types together:
+
+- A `native` call that overlaps a `stall` is the blocking suspect.
+- A slow `native` call with no stall is native work happening off the main
+  thread. An asynchronous handler, like the fork's queued audio-session calls,
+  replies late without blocking anything.
+
+The timing is a round trip, not time spent on the main thread, and it can't
+see work native code starts on its own (for example the audio device module
+starting capture), only the Dart calls that were waiting on it. The bench's own
+`creator_rooms/bench` channel is left out.

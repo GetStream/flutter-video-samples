@@ -15,6 +15,7 @@ import 'package:stream_video_flutter/stream_video_flutter.dart' as video;
 
 import '../models/app_user.dart';
 import 'load_phases.dart';
+import 'native_calls.dart';
 import 'rtc_digest.dart';
 
 /// Benchmark mode: records what the app, the SDKs and the device are doing
@@ -50,6 +51,13 @@ import 'rtc_digest.dart';
 /// - `status`  - call status / chat connection changes.
 /// - `life`    - app lifecycle changes and memory-pressure warnings.
 /// - `log`     - SDK warnings and errors (rate-limited).
+/// - `native`  - a platform-channel call whose round trip took at least
+///               [NativeCallTimer.slowMs]: channel, method, start and duration
+///               (rate-limited). Needs [BenchBinding].
+/// - `stall`   - the Dart event loop was blocked for at least 100 ms: how long,
+///               and the native calls running during it. On iOS and Android
+///               Dart shares the main thread, so a native call listed here is
+///               the first suspect.
 ///
 /// `lib/bench/README.md` covers running a test and pulling the file off.
 class Bench {
@@ -63,6 +71,8 @@ class Bench {
   static const _sampleInterval = Duration(seconds: 1);
   static const _loopTick = Duration(milliseconds: 50);
   static const _maxLogsPerSample = 20;
+  static const _maxNativePerSample = 20;
+  static const _stallMs = 100;
 
   /// What the overlay shows. Updated once per sample.
   final overlay = ValueNotifier<BenchOverlayData?>(null);
@@ -90,6 +100,8 @@ class Bench {
   var _sampleCount = 0;
   var _logsThisSample = 0;
   var _logsDropped = 0;
+  var _nativeThisSample = 0;
+  var _nativeDropped = 0;
   var _sampling = false;
 
   String? get filePath => _file?.path;
@@ -142,6 +154,11 @@ class Bench {
     });
 
     SchedulerBinding.instance.addTimingsCallback(_frames.addAll);
+
+    // Only times anything when main() installed BenchBinding.
+    final nativeCalls = NativeCallTimer.instance;
+    nativeCalls.now = () => _clock.elapsedMilliseconds;
+    nativeCalls.onSlowCall = _onSlowNativeCall;
 
     _loopWatch = Stopwatch()..start();
     _timers
@@ -276,11 +293,35 @@ class Bench {
     });
   }
 
+  void _onSlowNativeCall(Map<String, Object?> call) {
+    if (_nativeThisSample >= _maxNativePerSample) {
+      _nativeDropped++;
+      return;
+    }
+    _nativeThisSample++;
+    _write('native', call);
+  }
+
   void _onLoopTick() {
     final watch = _loopWatch!;
     final lag = watch.elapsedMicroseconds / 1000 - _loopTick.inMilliseconds;
     watch.reset();
     _loopLagsMs.add(lag < 0 ? 0 : lag);
+    if (lag >= _stallMs) _onStall(lag);
+  }
+
+  /// Written as soon as the event loop runs again, so the native calls still
+  /// in flight - or just finished - are the ones that overlapped the block.
+  void _onStall(double lagMs) {
+    final nowMs = _clock.elapsedMilliseconds;
+    // The tick was due `_loopTick` after the previous one, and ran `lagMs`
+    // late: the loop was blocked somewhere in that window.
+    final fromMs = nowMs - lagMs.round() - _loopTick.inMilliseconds;
+    _write('stall', {
+      'lagMs': _round(lagMs),
+      'fromMs': fromMs,
+      'native': NativeCallTimer.instance.callsDuring(fromMs, nowMs),
+    });
   }
 
   Future<void> _sample() async {
@@ -316,6 +357,7 @@ class Bench {
       _chatEvents.clear();
 
       final ui = _frameSummary(frames);
+      final native = NativeCallTimer.instance.takeSample();
       _write('s', {
         'ui': ui,
         'loop': {
@@ -340,10 +382,15 @@ class Bench {
                 },
             ],
         },
+        if ((native['calls'] as int) > 0 || native.containsKey('inFlight'))
+          'native': native,
         if (_logsDropped > 0) 'logsDropped': _logsDropped,
+        if (_nativeDropped > 0) 'nativeDropped': _nativeDropped,
       });
       _logsThisSample = 0;
       _logsDropped = 0;
+      _nativeThisSample = 0;
+      _nativeDropped = 0;
       await _sink?.flush();
 
       overlay.value = BenchOverlayData(

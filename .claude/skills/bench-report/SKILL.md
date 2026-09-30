@@ -77,6 +77,14 @@ recording) plus `ms`.
   viewer count uses it.
 - **Stalls.** List each entry in `stalls` with its time and what was
   happening then, such as a join, going live, or a ramp.
+  Recordings made with native call timing also list, per stall, the
+  platform-channel calls in flight or finishing during it (`stalls[].native`),
+  and `nativeCalls` summarises slow calls by `channel#method`. A slow call
+  that overlaps a stall is the blocking suspect, because Dart shares the main
+  thread with native handlers. A slow call with no stall is native work off
+  the main thread. These are round trips, not main-thread time, so present
+  them as suspects, not causes. `nativeCalls: null` means the recording
+  predates the feature.
 - **Resources.** CPU by phase. `memory` before, peak and after, and whether it
   returned to where it started. Thread count after leaving. `thermal` and
   battery, but only when the device wasn't charging.

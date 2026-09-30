@@ -29,6 +29,7 @@ A community app where the conversation is the front door and the broadcast happe
 1. Open the project in your IDE.
 2. Run `flutter pub get`.
 3. Run the app on a physical device or emulator. **The iOS Simulator and the Android emulator have no real camera**, so the host's preview will be blank there — run the creator on a physical device to see actual video.
+   It also runs in the browser (`flutter run -d chrome`); the browser asks for camera and microphone access when a creator goes live. Benchmark mode is mobile-only.
 4. Sign in as a creator (Alice, Carol, or Eva) on one device and as a member (Bob, David, or Frank) on another, open the same room, and tap **Go live**.
 
 ## ⚠️ The Live State Is Client-Driven — Don't Ship That

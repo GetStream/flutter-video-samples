@@ -5,13 +5,20 @@ import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 import 'bench/bench.dart';
 import 'bench/bench_overlay.dart';
+import 'bench/native_calls.dart';
 import 'env/env.dart';
 import 'screens/login_screen.dart';
 import 'theme.dart';
 import 'widgets/livestream_attachment_builder.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+  // Benchmark mode times native calls, which needs its binding to be the
+  // first one created.
+  if (Bench.enabled) {
+    BenchBinding.ensureInitialized();
+  } else {
+    WidgetsFlutterBinding.ensureInitialized();
+  }
 
   // One chat client for the whole app, created before runApp. The Video client
   // is a singleton created at sign-in, once we know which user's token to use.

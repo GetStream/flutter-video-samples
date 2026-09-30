@@ -236,6 +236,56 @@ class OrderedCounter(dict):
         return 0
 
 
+def native_label(call):
+    method = call.get("method")
+    return f'{call.get("channel")}#{method}' if method else call.get("channel")
+
+
+def stall_natives(stall_lines, t):
+    """Native calls listed by `stall` lines written in the second ending at t."""
+    out = []
+    for l in stall_lines:
+        if t - 1 < l["ms"] / 1000 <= t + 0.05:
+            for c in l.get("native") or []:
+                out.append({
+                    "call": native_label(c),
+                    "startS": round(c["startMs"] / 1000, 2),
+                    "durMs": c.get("durMs"),
+                    "inFlightMs": c.get("ageMs") if c.get("inFlight") else None,
+                    "stallLagMs": l.get("lagMs"),
+                })
+    return out
+
+
+def native_summary(native, samples):
+    """Slow platform-channel calls grouped by channel#method."""
+    if not native and not any("native" in s for s in samples):
+        return None
+    by = defaultdict(list)
+    for n in native:
+        by[native_label(n)].append(n.get("durMs") or 0)
+    totals = [s.get("native", {}) for s in samples]
+    return {
+        "note": "Round trips from the Dart side. A slow call that overlaps a stall "
+                "is the blocking suspect; a slow call with no stall is native work "
+                "off the main thread.",
+        "thresholdMs": 50,
+        "callsTotal": sum(t.get("calls", 0) for t in totals),
+        "slowTotal": sum(t.get("slow", 0) for t in totals),
+        "droppedLines": sum(s.get("nativeDropped", 0) for s in samples),
+        "slowByCall": sorted(
+            ({"call": k, "count": len(v), "maxMs": max(v), "p90Ms": sorted(v)[int((len(v) - 1) * 0.9)]}
+             for k, v in by.items()),
+            key=lambda x: -x["maxMs"],
+        )[:15],
+        "slowest": sorted(
+            ({"t": round(n["startMs"] / 1000, 2), "call": native_label(n), "durMs": n.get("durMs")}
+             for n in native),
+            key=lambda x: -(x["durMs"] or 0),
+        )[:10],
+    }
+
+
 def analyze(path):
     lines, bad = load(path)
     meta = next((l for l in lines if l["t"] == "meta"), {})
@@ -246,6 +296,8 @@ def analyze(path):
     statuses = [l for l in lines if l["t"] == "status"]
     life = [l for l in lines if l["t"] == "life"]
     logs = [l for l in lines if l["t"] == "log"]
+    native = [l for l in lines if l["t"] == "native"]
+    stall_lines = [l for l in lines if l["t"] == "stall"]
     if not samples:
         sys.exit("No `s` sample lines - is this a benchmark recording?")
 
@@ -321,7 +373,10 @@ def analyze(path):
 
     # Seconds where the UI thread stalled badly.
     stalls = [
-        {"t": r["t"], "lagMaxMs": r["lagMax"], "frameMaxMs": r["totalMax"], "load": r["load"]}
+        {"t": r["t"], "lagMaxMs": r["lagMax"], "frameMaxMs": r["totalMax"], "load": r["load"],
+         # Native calls the recorder saw running while the event loop was
+         # blocked (only in recordings made with BenchBinding).
+         "native": stall_natives(stall_lines, r["t"])}
         for r in rows
         if (r["lagMax"] or 0) >= STALL_MS or (r["totalMax"] or 0) >= STALL_MS
     ]
@@ -451,6 +506,7 @@ def analyze(path):
         },
         "phases": phases,
         "stalls": stalls,
+        "nativeCalls": native_summary(native, samples),
         "jankAttribution": attribution,
         "callEventTotals": dict(call_events.most_common()),
         "chatEventTotals": dict(chat_events.most_common()),
