@@ -34,17 +34,17 @@ dependency_overrides:
     git:
       url: https://github.com/GetStream/stream-chat-flutter.git
       path: packages/stream_chat
-      ref: 0bbeea2862acd2f24baf5001d4013e72230645df
+      ref: c05427f006b0638e91d30ac6f9eab48e66cf7056
   stream_chat_flutter:
     git:
       url: https://github.com/GetStream/stream-chat-flutter.git
       path: packages/stream_chat_flutter
-      ref: 0bbeea2862acd2f24baf5001d4013e72230645df
+      ref: c05427f006b0638e91d30ac6f9eab48e66cf7056
   stream_chat_flutter_core:
     git:
       url: https://github.com/GetStream/stream-chat-flutter.git
       path: packages/stream_chat_flutter_core
-      ref: 0bbeea2862acd2f24baf5001d4013e72230645df
+      ref: c05427f006b0638e91d30ac6f9eab48e66cf7056
   stream_core_flutter:
     git:
       url: https://github.com/GetStream/stream-core-flutter.git
