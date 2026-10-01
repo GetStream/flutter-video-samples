@@ -265,87 +265,80 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
     final call = _call;
     if (!_joined || call == null) return _loadingScaffold();
 
-    // List every call value used in the overlay here for efficient state updates.
-    return PartialCallStateBuilder<
-      ({bool isBackstage, int viewerCount, bool cameraOn, bool micOn})
-    >(
-      call: call,
-      selector: (state) => (
-        isBackstage: state.isBackstage,
-        viewerCount: state.otherParticipants.length,
-        cameraOn: state.localParticipant?.isVideoEnabled ?? false,
-        micOn: state.localParticipant?.isAudioEnabled ?? false,
-      ),
-      builder: (context, data) {
+    // Nothing here is keyed on call state. Every join or leave emits a new
+    // `CallState`, and at a few hundred participants rebuilding the whole
+    // overlay (camera preview, chat panel, controls) per event is what made the
+    // host screen jank. Each call value is instead selected by the one small
+    // widget that shows it, so a join only touches the viewer count.
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
         // Live status is derived from backstage - never a separate bool.
-        final isLive = !data.isBackstage;
-        final local = call.state.value.localParticipant;
-
-        return PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, _) async {
-            if (didPop) return;
-            if (isLive) {
-              if (await _confirmLeave(true)) await _endStream();
-              return;
-            }
-            final navigator = Navigator.of(context);
-            await call.leave();
-            if (mounted) navigator.pop();
-          },
-          child: Scaffold(
-            backgroundColor: Colors.black,
-            body: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (local != null && data.cameraOn)
-                  StreamVideoRenderer(
-                    call: call,
-                    participant: local,
-                    videoTrackType: SfuTrackType.video,
-                    videoFit: VideoFit.cover,
-                  )
-                else
-                  const _AudioOnlyBackdrop(),
-
-                const _ControlsShade(),
-
-                Positioned(
-                  top: MediaQuery.of(context).padding.top + 10,
-                  left: 12,
-                  right: 12,
-                  child: _topBar(isLive, data.viewerCount),
-                ),
-
-                if (_showChat)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    top: MediaQuery.of(context).size.height * 0.4,
-                    child: _chatPanel(),
-                  ),
-
-                if (!_showChat)
-                  Positioned(
-                    left: 16,
-                    right: 16,
-                    bottom: MediaQuery.of(context).padding.bottom + 24,
-                    child: _controlBar(
-                      isLive,
-                      micOn: data.micOn,
-                      cameraOn: data.cameraOn,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        );
+        final isLive = !call.state.value.isBackstage;
+        if (isLive) {
+          if (await _confirmLeave(true)) await _endStream();
+          return;
+        }
+        final navigator = Navigator.of(context);
+        await call.leave();
+        if (mounted) navigator.pop();
       },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            _HostPreview(call: call),
+
+            const _ControlsShade(),
+
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 10,
+              left: 12,
+              right: 12,
+              child: _topBar(call),
+            ),
+
+            if (_showChat)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                top: MediaQuery.of(context).size.height * 0.4,
+                child: _chatPanel(),
+              ),
+
+            if (!_showChat)
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: MediaQuery.of(context).padding.bottom + 24,
+                child:
+                    PartialCallStateBuilder<
+                      ({bool isBackstage, bool cameraOn, bool micOn})
+                    >(
+                      call: call,
+                      selector: (state) => (
+                        isBackstage: state.isBackstage,
+                        cameraOn:
+                            state.localParticipant?.isVideoEnabled ?? false,
+                        micOn: state.localParticipant?.isAudioEnabled ?? false,
+                      ),
+                      builder: (context, data) => _controlBar(
+                        !data.isBackstage,
+                        micOn: data.micOn,
+                        cameraOn: data.cameraOn,
+                      ),
+                    ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _topBar(bool isLive, int viewerCount) {
+  Widget _topBar(Call call) {
     return Row(
       children: [
         _circleButton(
@@ -359,28 +352,13 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
             children: [
               Row(
                 children: [
-                  if (isLive)
-                    LiveBadge(viewerCount: viewerCount)
-                  else
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        'BACKSTAGE',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                    ),
+                  PartialCallStateBuilder<bool>(
+                    call: call,
+                    selector: (state) => state.isBackstage,
+                    builder: (context, isBackstage) => isBackstage
+                        ? const _BackstageBadge()
+                        : _ViewerCountBadge(call: call),
+                  ),
                 ],
               ),
               const SizedBox(height: 5),
@@ -416,7 +394,7 @@ class _HostLivestreamScreenState extends State<HostLivestreamScreen> {
   }
 
   /// Takes its values from the selector rather than reading `call.state.value`
-  /// itself - see the note on the builder above.
+  /// itself, so it always matches the state it was built for.
   Widget _controlBar(
     bool isLive, {
     required bool micOn,
@@ -661,4 +639,130 @@ class _ControlsShade extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The creator's own camera, or a stand-in while it is off.
+///
+/// Selects only the local participant. It compares equal across other
+/// participants' joins and leaves, so the renderer is rebuilt when the host's
+/// own state changes and not once per viewer.
+class _HostPreview extends StatelessWidget {
+  const _HostPreview({required this.call});
+
+  final Call call;
+
+  @override
+  Widget build(BuildContext context) {
+    return PartialCallStateBuilder<CallParticipantState?>(
+      call: call,
+      selector: (state) => switch (state.localParticipant) {
+        final local? when local.isVideoEnabled => local,
+        _ => null,
+      },
+      builder: (context, local) => local == null
+          ? const _AudioOnlyBackdrop()
+          : StreamVideoRenderer(
+              call: call,
+              participant: local,
+              videoTrackType: SfuTrackType.video,
+              videoFit: VideoFit.cover,
+            ),
+    );
+  }
+}
+
+class _BackstageBadge extends StatelessWidget {
+  const _BackstageBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: const Text(
+        'BACKSTAGE',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+}
+
+/// The LIVE badge with the number of people watching.
+///
+/// The count changes on every join and leave, which during a ramp can be
+/// dozens of times a second. Nobody reads a number that fast, so it is
+/// throttled: the first change shows at once, then at most one update per
+/// [_interval], always ending on the latest value.
+class _ViewerCountBadge extends StatefulWidget {
+  const _ViewerCountBadge({required this.call});
+
+  final Call call;
+
+  @override
+  State<_ViewerCountBadge> createState() => _ViewerCountBadgeState();
+}
+
+class _ViewerCountBadgeState extends State<_ViewerCountBadge> {
+  static const _interval = Duration(milliseconds: 250);
+
+  late int _shown = _count(widget.call.state.value);
+  int? _pending;
+  Timer? _throttle;
+  StreamSubscription<int>? _subscription;
+
+  static int _count(CallState state) => state.otherParticipants.length;
+
+  @override
+  void initState() {
+    super.initState();
+    _subscribe();
+  }
+
+  @override
+  void didUpdateWidget(_ViewerCountBadge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.call, widget.call)) {
+      _subscription?.cancel();
+      _subscribe();
+    }
+  }
+
+  void _subscribe() {
+    _subscription = widget.call.partialState(_count).listen(_onCount);
+  }
+
+  void _onCount(int count) {
+    if (_throttle != null) {
+      _pending = count;
+      return;
+    }
+    if (count != _shown) setState(() => _shown = count);
+    _throttle = Timer(_interval, _flush);
+  }
+
+  void _flush() {
+    _throttle = null;
+    final pending = _pending;
+    _pending = null;
+    if (pending != null && mounted) _onCount(pending);
+  }
+
+  @override
+  void dispose() {
+    _throttle?.cancel();
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      RepaintBoundary(child: LiveBadge(viewerCount: _shown));
 }

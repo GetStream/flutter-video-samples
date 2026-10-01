@@ -74,12 +74,12 @@ abstract class Env {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZXZhX21hcnRpbmV6In0.132_gPKxhGNDZMUAPMaT6FWG1-3ZcRlVb3Ck4v42dXI',
   );
 
-  static const String sampleUserId05 = 'frank_wilson';
+  static const String sampleUserId05 = 'frank';
   static const String sampleUserName05 = 'Frank Wilson';
   static const String sampleUserImage05 = 'https://robohash.org/frank_wilson';
   static const String sampleUserToken05 = String.fromEnvironment(
     'STREAM_TOKEN_05',
     defaultValue:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZnJhbmtfd2lsc29uIn0._QhcO-4JhbK2O-Mh91iPX2fgpoExEbS0cSBhO5IYC1A',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZnJhbmsifQ.DxYGODjfn1F-dY_wvWQGSxv_aQHARu53SGhpdX9yb2s',
   );
 }
