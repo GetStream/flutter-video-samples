@@ -24,12 +24,12 @@ dependency_overrides:
     git:
       url: https://github.com/GetStream/stream-video-flutter.git
       path: packages/stream_video
-      ref: 1841c89f31a9c0bf523d6945bfb9199f781592e5
+      ref: 021b678f257d3993230ffe2cb6b2b1c72d327fe4
   stream_video_flutter:
     git:
       url: https://github.com/GetStream/stream-video-flutter.git
       path: packages/stream_video_flutter
-      ref: 1841c89f31a9c0bf523d6945bfb9199f781592e5
+      ref: 021b678f257d3993230ffe2cb6b2b1c72d327fe4
   stream_chat:
     git:
       url: https://github.com/GetStream/stream-chat-flutter.git
