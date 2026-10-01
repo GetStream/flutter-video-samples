@@ -29,22 +29,27 @@ dependency_overrides:
     git:
       url: https://github.com/GetStream/stream-video-flutter.git
       path: packages/stream_video_flutter
-      ref: c4b0ce6fc9838060197a6a4adc422cb366f6e5d8
+      ref: 71e234601c6ef4f3951a76a687ffd71ea21dfb3a
   stream_chat:
     git:
       url: https://github.com/GetStream/stream-chat-flutter.git
       path: packages/stream_chat
-      ref: 152271d01ab1d6404b9f05cb161c7acc3f5529fd
+      ref: 0bbeea2862acd2f24baf5001d4013e72230645df
   stream_chat_flutter:
     git:
       url: https://github.com/GetStream/stream-chat-flutter.git
       path: packages/stream_chat_flutter
-      ref: 152271d01ab1d6404b9f05cb161c7acc3f5529fd
+      ref: 0bbeea2862acd2f24baf5001d4013e72230645df
   stream_chat_flutter_core:
     git:
       url: https://github.com/GetStream/stream-chat-flutter.git
       path: packages/stream_chat_flutter_core
-      ref: 152271d01ab1d6404b9f05cb161c7acc3f5529fd
+      ref: 0bbeea2862acd2f24baf5001d4013e72230645df
+  stream_core_flutter:
+    git:
+      url: https://github.com/GetStream/stream-core-flutter.git
+      path: packages/stream_core_flutter
+      ref: b6f5e1cc64b73a4e6f8cad7d53280dcc87efcf8d
   stream_webrtc_flutter:
     git:
       url: https://github.com/GetStream/webrtc-flutter.git
