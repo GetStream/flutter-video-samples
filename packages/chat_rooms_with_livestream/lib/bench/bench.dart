@@ -80,6 +80,10 @@ class Bench {
   final _clock = Stopwatch();
   IOSink? _sink;
   File? _file;
+  // An IOSink throws on writes while a flush is pending, so lines written
+  // during a flush wait here.
+  Future<void>? _flushing;
+  final _pending = <String>[];
 
   final _frames = <FrameTiming>[];
   final _loopLagsMs = <double>[];
@@ -182,7 +186,7 @@ class Bench {
     AppLifecycleListener(
       onStateChange: (state) {
         _write('life', {'state': state.name});
-        if (state == AppLifecycleState.paused) unawaited(_sink?.flush());
+        if (state == AppLifecycleState.paused) unawaited(_flush());
       },
     );
     _memoryObserver = _MemoryPressureObserver(
@@ -252,7 +256,7 @@ class Bench {
   Future<void> share() async {
     final file = _file;
     if (file == null) return;
-    await _sink?.flush();
+    await _flush();
     await SharePlus.instance.share(
       ShareParams(files: [XFile(file.path)], subject: 'Benchmark recording'),
     );
@@ -391,7 +395,7 @@ class Bench {
       _logsDropped = 0;
       _nativeThisSample = 0;
       _nativeDropped = 0;
-      await _sink?.flush();
+      await _flush();
 
       overlay.value = BenchOverlayData(
         elapsed: Duration(milliseconds: nowMs),
@@ -439,9 +443,31 @@ class Bench {
   void _write(String type, Map<String, Object?> data) {
     final sink = _sink;
     if (sink == null) return;
-    sink.writeln(
-      jsonEncode({'t': type, 'ms': _clock.elapsedMilliseconds, ...data}),
-    );
+    final line = jsonEncode({
+      't': type,
+      'ms': _clock.elapsedMilliseconds,
+      ...data,
+    });
+    if (_flushing != null) {
+      _pending.add(line);
+    } else {
+      sink.writeln(line);
+    }
+  }
+
+  Future<void> _flush() async {
+    final sink = _sink;
+    if (sink == null) return;
+    if (_flushing case final flushing?) return flushing;
+    final flushing = _flushing = sink.flush();
+    try {
+      await flushing;
+    } finally {
+      _flushing = null;
+      _pending
+        ..forEach(sink.writeln)
+        ..clear();
+    }
   }
 
   Future<Map<String, Object?>?> _invoke(
