@@ -27,6 +27,7 @@ class RtcDigest {
     final remoteInbound = <Map<String, dynamic>>[];
     double outboundAudioKbps = 0;
     var hasOutboundAudio = false;
+    Map<String, dynamic>? videoSource;
 
     for (final report in raw) {
       final id = report['id'] as String? ?? '';
@@ -63,8 +64,39 @@ class RtcDigest {
               'pli': _delta(report, prev, 'pliCount'),
               'fir': _delta(report, prev, 'firCount'),
               'encoder': report['encoderImplementation'],
+              // What the encoder actually produces for an SVC request: null
+              // here with a requested L3T3_KEY is the single-layer failure.
+              'scalabilityMode': report['scalabilityMode'],
+              // Frames in this window; a steady 30 fps source with fewer
+              // encoded frames is an encoder gap, the kind every viewer sees
+              // as a freeze.
+              'framesEncodedD': frames,
+              'keyFramesD': _delta(report, prev, 'keyFramesEncoded'),
+              'resChanges': _num(report['qualityLimitationResolutionChanges']),
+              'qlBwSecD': _nestedDelta(
+                report,
+                prev,
+                'qualityLimitationDurations',
+                'bandwidth',
+              ),
+              'qlCpuSecD': _nestedDelta(
+                report,
+                prev,
+                'qualityLimitationDurations',
+                'cpu',
+              ),
             }),
           );
+        case 'media-source' when kind == 'video':
+          // The frames the camera delivered to the encoder: the size before
+          // any encoder adaptation, and the capture rate to compare with
+          // framesEncodedD.
+          videoSource = _compact({
+            'w': _num(report['width']),
+            'h': _num(report['height']),
+            'fps': _num(report['framesPerSecond']),
+            'framesD': _delta(report, prev, 'frames'),
+          });
         case 'outbound-rtp' when kind == 'audio':
           hasOutboundAudio = true;
           outboundAudioKbps += _rateKbps(report, prev, 'bytesSent', dtS) ?? 0;
@@ -145,6 +177,7 @@ class RtcDigest {
       });
     }
     if (outboundVideo.isNotEmpty) out['outVideo'] = outboundVideo;
+    if (videoSource != null && videoSource.isNotEmpty) out['src'] = videoSource;
     if (hasOutboundAudio) out['outAudioKbps'] = _round(outboundAudioKbps);
     if (remoteInbound.isNotEmpty) out['remote'] = remoteInbound;
     if (inboundVideo.isNotEmpty) out['inVideo'] = inboundVideo;
@@ -213,6 +246,22 @@ class RtcDigest {
     final bytes = _delta(report, prev, bytesKey);
     if (bytes == null || dtS == null || dtS <= 0) return null;
     return _round(bytes * 8 / 1000 / dtS);
+  }
+
+  /// Delta of one entry of a nested map such as `qualityLimitationDurations`.
+  static double? _nestedDelta(
+    Map<String, dynamic> report,
+    Map<String, dynamic>? prev,
+    String mapKey,
+    String key,
+  ) {
+    final now = report[mapKey];
+    final before = prev?[mapKey];
+    if (now is! Map || before is! Map) return null;
+    final a = _num(now[key]);
+    final b = _num(before[key]);
+    if (a == null || b == null) return null;
+    return _round(a - b);
   }
 
   static double? _delta(
