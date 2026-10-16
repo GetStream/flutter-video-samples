@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart' as video;
 
@@ -26,19 +27,10 @@ class _RoomListScreenState extends State<RoomListScreen> {
     // Rooms are public, so they are queried by id rather than by membership.
     filter: Filter.and([
       Filter.equal('type', roomChannelType),
-      // The benchmark room is pinned above the list instead.
-      Filter.in_('id', [
-        for (final room in predefinedRooms)
-          if (!room.backendLivestream) room.id,
-      ]),
+      Filter.in_('id', [for (final room in predefinedRooms) room.id]),
     ]),
     channelStateSort: const [SortOption.desc('last_message_at')],
   );
-
-  late final _benchChannel = StreamChat.of(
-    context,
-  ).client.channel(roomChannelType, id: benchmarkRoom.id);
-  late final Future<void> _benchWatched = _benchChannel.watch().then((_) {});
 
   @override
   void dispose() {
@@ -95,34 +87,11 @@ class _RoomListScreenState extends State<RoomListScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
-            child: _benchmarkRoomCard(),
+            child: _BenchmarkRoomCard(user: widget.user),
           ),
           Expanded(child: _roomList()),
         ],
       ),
-    );
-  }
-
-  /// The backend-run benchmark room, kept out of the sorted list so it is
-  /// always in the same place.
-  Widget _benchmarkRoomCard() {
-    return FutureBuilder<void>(
-      future: _benchWatched,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text(
-            'Benchmark room unavailable: ${snapshot.error}',
-            style: const TextStyle(color: AppColors.live, fontSize: 12),
-          );
-        }
-        // Keyed on completion so the card re-reads the channel state once
-        // the watch has filled it in.
-        return _RoomCard(
-          key: ValueKey(snapshot.connectionState),
-          channel: _benchChannel,
-          user: widget.user,
-        );
-      },
     );
   }
 
@@ -180,7 +149,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
 }
 
 class _RoomCard extends StatelessWidget {
-  const _RoomCard({super.key, required this.channel, required this.user});
+  const _RoomCard({required this.channel, required this.user});
 
   final Channel channel;
   final AppUser user;
@@ -265,25 +234,22 @@ class _RoomCard extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 3),
-                        if (room?.backendLivestream ?? false)
-                          _BackendCallIdLine(accent: accent)
-                        else
-                          Text(
-                            isLive
-                                ? '${session.hostName} · ${session.title}'
-                                : room?.topic ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12.5,
-                              color: isLive
-                                  ? AppColors.live
-                                  : AppColors.textMuted,
-                              fontWeight: isLive
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                            ),
+                        Text(
+                          isLive
+                              ? '${session.hostName} · ${session.title}'
+                              : room?.topic ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            color: isLive
+                                ? AppColors.live
+                                : AppColors.textMuted,
+                            fontWeight: isLive
+                                ? FontWeight.w600
+                                : FontWeight.w400,
                           ),
+                        ),
                         const SizedBox(height: 8),
                         _LastMessageLine(channel: channel),
                       ],
@@ -301,27 +267,192 @@ class _RoomCard extends StatelessWidget {
   }
 }
 
-/// The call id the benchmark room will join, in place of the topic line.
-class _BackendCallIdLine extends StatelessWidget {
-  const _BackendCallIdLine({required this.accent});
+/// Entry point to the backend-run benchmark room, pinned above the regular
+/// rooms: paste the call id the backend hands out and open the room.
+///
+/// The room's chat channel is `livestream:<callId>`, so the backend can post
+/// into it with the same id it created the call with. Opening it creates the
+/// channel if the backend has not.
+class _BenchmarkRoomCard extends StatefulWidget {
+  const _BenchmarkRoomCard({required this.user});
 
-  final Color accent;
+  final AppUser user;
+
+  @override
+  State<_BenchmarkRoomCard> createState() => _BenchmarkRoomCardState();
+}
+
+class _BenchmarkRoomCardState extends State<_BenchmarkRoomCard> {
+  /// What Stream accepts as a chat channel id.
+  static final _validId = RegExp(r'^[a-zA-Z0-9_-]+$');
+
+  late final _controller = TextEditingController(text: backendCallId.value);
+  bool _opening = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _paste() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text?.trim();
+    if (text == null || text.isEmpty) return;
+    _controller.text = text;
+  }
+
+  Future<void> _open() async {
+    final callId = _controller.text.trim();
+    if (callId.isEmpty) {
+      return _snack('Paste the call id from the backend first.');
+    }
+    if (!_validId.hasMatch(callId)) {
+      return _snack(
+        'The call id doubles as the chat channel id, which only allows '
+        'letters, digits, "-" and "_".',
+      );
+    }
+
+    final room = benchmarkRoomFor(callId);
+    final channel = StreamChat.of(context).client.channel(
+      roomChannelType,
+      id: callId,
+      extraData: {'name': room.name, 'topic': room.topic},
+    );
+
+    setState(() => _opening = true);
+    try {
+      backendCallId.value = callId;
+      await channel.watch();
+    } on StreamChatError catch (e) {
+      // Usually the `user` role missing Create Channel on the room type.
+      return _snack('Could not open the room: ${e.message}');
+    } finally {
+      if (mounted) setState(() => _opening = false);
+    }
+
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => StreamChannel(
+          channel: channel,
+          child: RoomScreen(user: widget.user),
+        ),
+      ),
+    );
+  }
+
+  void _snack(String message) => ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(message)));
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<String>(
-      valueListenable: backendCallId,
-      builder: (context, callId, _) => Text(
-        callId.isEmpty
-            ? 'Backend livestream · paste a call id inside'
-            : 'Backend livestream · $callId',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: 12.5,
-          color: accent,
-          fontWeight: FontWeight.w600,
-        ),
+    final room = benchmarkRoomFor('');
+    final accent = room.accent;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: accent.withValues(alpha: 0.6)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(13),
+                  border: Border.all(color: accent.withValues(alpha: 0.4)),
+                ),
+                alignment: Alignment.center,
+                child: Text(room.emoji, style: const TextStyle(fontSize: 22)),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      room.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.text,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Chat and video share the call id',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: accent,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  enabled: !_opening,
+                  autocorrect: false,
+                  textInputAction: TextInputAction.go,
+                  onSubmitted: (_) => _open(),
+                  style: const TextStyle(fontSize: 13.5),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    labelText: 'Call id from the backend',
+                    suffixIcon: IconButton(
+                      tooltip: 'Paste',
+                      onPressed: _opening ? null : _paste,
+                      icon: const Icon(Icons.content_paste_rounded, size: 18),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              FilledButton(
+                onPressed: _opening ? null : _open,
+                style: FilledButton.styleFrom(
+                  backgroundColor: accent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                child: _opening
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Open room'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

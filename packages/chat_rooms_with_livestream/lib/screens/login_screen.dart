@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart' as video;
 
@@ -42,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (video.StreamVideo.isInitialized()) {
         await video.StreamVideo.reset(disconnect: true);
       }
-      video.StreamVideo(
+      final streamVideo = video.StreamVideo(
         Env.streamApiKey,
         user: video.User.regular(
           userId: user.id,
@@ -53,6 +55,28 @@ class _LoginScreenState extends State<LoginScreen> {
         options: Bench.instance.videoOptions(),
       );
       Bench.instance.session(user);
+
+      // Android: runs every joined call in a foreground service, so a stream
+      // keeps playing (and a broadcast keeps going) in picture-in-picture or
+      // the background. A no-op on iOS, where the audio background mode does
+      // this job. The notification is static on purpose: the default one
+      // lists every participant and is rebuilt on each call state change,
+      // which a load test with thousands of viewers would pay for.
+      video.StreamBackgroundService.init(
+        streamVideo,
+        callNotificationOptionsBuilder: (call) =>
+            const video.NotificationOptions(
+              content: video.NotificationContent(
+                title: 'Livestream in progress',
+                text: 'Tap to return to the stream.',
+              ),
+            ),
+      );
+      // Android 13+ hides the service's notification without this; the
+      // service itself runs either way.
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        await Permission.notification.request();
+      }
 
       // The rooms are predefined in code and materialised on Stream the
       // first time anyone signs in.

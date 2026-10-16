@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'live_session.dart';
+
 /// Stream channel type backing every room in this app.
 ///
 /// `livestream` - not because the rooms *are* livestreams, but because it is
@@ -41,16 +43,19 @@ class RoomDefinition {
 
   /// The livestream here is run by the backend, not started from the app:
   /// viewers paste the call id and join directly, with no announcement in chat
-  /// and no host on any device. See [benchmarkRoom].
+  /// and no host on any device. See [benchmarkRoomFor].
   final bool backendLivestream;
 }
 
 /// Room for load tests where the backend creates and drives the livestream.
 ///
-/// Listed on its own above the regular rooms. Its join control is always
-/// visible, so a viewer can join as soon as the backend shares a call id.
-const benchmarkRoom = RoomDefinition(
-  id: 'backstage-benchmark',
+/// Its chat channel id *is* the call id, so the backend can address both the
+/// call and its chat - `livestream:<callId>` - from the one id it hands out.
+/// That makes it a room per test run rather than a fixed one: it is opened
+/// from the card above the regular rooms once a call id is pasted, and is not
+/// part of [predefinedRooms]. Its join control is always visible.
+RoomDefinition benchmarkRoomFor(String callId) => RoomDefinition(
+  id: callId,
   name: 'Benchmark Stage',
   topic: 'Backend-run livestream - paste a call id and join',
   emoji: '📈',
@@ -63,7 +68,6 @@ const benchmarkRoom = RoomDefinition(
 /// The `backstage-` prefix keeps these ids from colliding with the other
 /// samples that share the same demo Stream app.
 const predefinedRooms = <RoomDefinition>[
-  benchmarkRoom,
   RoomDefinition(
     id: 'backstage-lounge',
     name: 'The Lounge',
@@ -105,6 +109,10 @@ const predefinedRooms = <RoomDefinition>[
 RoomDefinition? roomForChannelId(String? channelId) {
   for (final room in predefinedRooms) {
     if (room.id == channelId) return room;
+  }
+  final callId = backendCallId.value;
+  if (callId.isNotEmpty && channelId == callId) {
+    return benchmarkRoomFor(callId);
   }
   return null;
 }

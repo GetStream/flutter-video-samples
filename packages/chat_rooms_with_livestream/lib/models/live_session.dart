@@ -181,7 +181,8 @@ String newLiveCallId(String channelId) => _pinnedCallId.isNotEmpty
     ? _pinnedCallId
     : '$channelId-live-${DateTime.now().millisecondsSinceEpoch}';
 
-/// Call id of the backend-run livestream in the benchmark room.
+/// Call id of the backend-run livestream, which is also the benchmark room's
+/// chat channel id.
 ///
 /// Starts as [_pinnedCallId], so a build made with `STREAM_BENCH_CALL_ID` comes
 /// up pre-filled, and holds whatever was last pasted for the rest of the run.

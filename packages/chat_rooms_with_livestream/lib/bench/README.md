@@ -31,10 +31,14 @@ no host device:
    provide into the `benchUser*` values at the top of `lib/env/env.dart` (or
    pass the token as `STREAM_TOKEN_BENCH`).
 2. Sign in with the **Bench viewer** tile at the top of the login screen.
-3. Open **Benchmark Stage** (pinned above the other rooms), paste the call id
-   and tap **Join livestream**. The button is always there - it does not wait
-   for a chat announcement. The call must already exist; it is fetched, not
-   created. `STREAM_BENCH_CALL_ID` pre-fills the field.
+3. On the **Benchmark Stage** card (pinned above the other rooms), paste the
+   call id and tap **Open room**. The room's chat channel is
+   `livestream:<callId>` - the same id as the call, in the same app - so the
+   backend can post into it without being told anything else. Opening creates
+   the channel if the backend has not.
+4. Tap **Join livestream**. The button is always there - it does not wait for a
+   chat announcement. The call must already exist; it is fetched, not created.
+   `STREAM_BENCH_CALL_ID` pre-fills the call id.
 
 ## Run
 
