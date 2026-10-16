@@ -718,7 +718,11 @@ class _ViewerCountBadgeState extends State<_ViewerCountBadge> {
   Timer? _throttle;
   StreamSubscription<int>? _subscription;
 
-  static int _count(CallState state) => state.otherParticipants.length;
+  // The server's count, not the participant list: in a large call the client
+  // only holds details for a few hundred participants, so counting the list
+  // stops near 250 however many are watching.
+  static int _count(CallState state) =>
+      state.participantCount + state.anonymousParticipantCount;
 
   @override
   void initState() {
