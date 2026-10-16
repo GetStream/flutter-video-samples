@@ -67,6 +67,8 @@ class _RoomScreenState extends State<RoomScreen> {
   ///
   /// [create] is off for backend-run streams: the backend owns the call, so a
   /// mistyped id should fail here rather than quietly create an empty call.
+  /// Those streams also join with the viewer audio policy, which sets the
+  /// audio session up for playback rather than for a voice call.
   Future<void> _watch(LiveSession session, {bool create = true}) async {
     if (_joining || _watchCall?.id == session.callId) return;
     setState(() => _joining = true);
@@ -74,6 +76,12 @@ class _RoomScreenState extends State<RoomScreen> {
     final call = video.StreamVideo.instance.makeCall(
       callType: video.StreamCallType.liveStream(),
       id: session.callId,
+      preferences: create
+          ? null
+          : video.DefaultCallPreferences(
+              audioConfigurationPolicy:
+                  const video.AudioConfigurationPolicy.viewer(),
+            ),
     );
     // Attached before the player joins, so time-to-first-frame is measured
     // from the tap.
