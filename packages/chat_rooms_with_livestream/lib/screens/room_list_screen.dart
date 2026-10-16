@@ -22,6 +22,11 @@ class RoomListScreen extends StatefulWidget {
 }
 
 class _RoomListScreenState extends State<RoomListScreen> {
+  /// Every channel this list can ever hold.
+  static final _listedCids = {
+    for (final room in predefinedRooms) '$roomChannelType:${room.id}',
+  };
+
   late final _controller = StreamChannelListController(
     client: StreamChat.of(context).client,
     // Rooms are public, so they are queried by id rather than by membership.
@@ -30,7 +35,20 @@ class _RoomListScreenState extends State<RoomListScreen> {
       Filter.in_('id', [for (final room in predefinedRooms) room.id]),
     ]),
     channelStateSort: const [SortOption.desc('last_message_at')],
-  );
+  )..eventListener = _ignoresUnlistedChannel;
+
+  /// Swallows channel events for channels outside [_listedCids], such as the
+  /// benchmark room, which is watched but never part of this list.
+  ///
+  /// The controller treats a `message.new` for a channel it does not hold as
+  /// "maybe it was hidden" and re-runs the whole QueryChannels. With the
+  /// benchmark room's chat traffic that is one request per message - enough
+  /// to hit the per-user QueryChannels rate limit within seconds. Events with
+  /// no channel (connection recovered, presence) still go through.
+  static bool _ignoresUnlistedChannel(Event event) {
+    final cid = event.cid;
+    return cid != null && !_listedCids.contains(cid);
+  }
 
   @override
   void dispose() {
