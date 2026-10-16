@@ -55,7 +55,7 @@ def main():
     parser.add_argument('seconds', type=float)
     parser.add_argument('focus', nargs='*')
     parser.add_argument('-o', '--out', default='cpu-samples.json')
-    args = parser.parse_args()
+    args = parser.parse_intermixed_args()
     samples = asyncio.run(capture(args.uri, args.seconds))
     with open(args.out, 'w') as f:
         json.dump(samples, f)
