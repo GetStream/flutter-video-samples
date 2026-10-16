@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart' as video;
 
@@ -63,7 +64,10 @@ class _RoomScreenState extends State<RoomScreen> {
   }
 
   /// Expands the banner into the inline player.
-  Future<void> _watch(LiveSession session) async {
+  ///
+  /// [create] is off for backend-run streams: the backend owns the call, so a
+  /// mistyped id should fail here rather than quietly create an empty call.
+  Future<void> _watch(LiveSession session, {bool create = true}) async {
     if (_joining || _watchCall?.id == session.callId) return;
     setState(() => _joining = true);
 
@@ -74,7 +78,9 @@ class _RoomScreenState extends State<RoomScreen> {
     // Attached before the player joins, so time-to-first-frame is measured
     // from the tap.
     Bench.instance.attachCall(call, role: 'viewer');
-    final result = await call.getOrCreate();
+    final video.Result<Object> result = create
+        ? await call.getOrCreate()
+        : await call.get();
 
     if (!mounted) return;
     result.fold(
@@ -101,6 +107,17 @@ class _RoomScreenState extends State<RoomScreen> {
     });
     Bench.instance.detachCall(call);
     await call.leave();
+  }
+
+  /// Joins the backend-run livestream in the benchmark room by call id.
+  Future<void> _joinBackendStream(String callId) async {
+    final id = callId.trim();
+    if (id.isEmpty) {
+      _snack('Paste the call id from the backend first.');
+      return;
+    }
+    backendCallId.value = id;
+    await _watch(backendLiveSession(id), create: false);
   }
 
   void _snack(String message) => ScaffoldMessenger.of(
@@ -169,12 +186,20 @@ class _RoomScreenState extends State<RoomScreen> {
     final channel = StreamChannel.of(context).channel;
     final room = roomForChannelId(channel.id);
     final accent = room?.accent ?? AppColors.primary;
+    final backendRun = room?.backendLivestream ?? false;
 
     return StreamBuilder<LiveSession?>(
       stream: liveSessionStream(channel),
       initialData: currentLiveSession(channel),
       builder: (context, snapshot) {
-        final session = snapshot.data;
+        // A backend-run stream has no announcement to read; the call being
+        // watched is the session.
+        final session = backendRun
+            ? switch (_watchCall) {
+                final call? => backendLiveSession(call.id),
+                null => null,
+              }
+            : snapshot.data;
         final someoneElseIsLive =
             session != null && session.hostId != widget.user.id;
 
@@ -247,7 +272,7 @@ class _RoomScreenState extends State<RoomScreen> {
                 ],
               ),
               actions: [
-                if (widget.user.role.canGoLive)
+                if (widget.user.role.canGoLive && !backendRun)
                   Padding(
                     padding: const EdgeInsets.only(right: 12),
                     child: FilledButton.icon(
@@ -278,7 +303,12 @@ class _RoomScreenState extends State<RoomScreen> {
                   duration: const Duration(milliseconds: 220),
                   curve: Curves.easeOutCubic,
                   alignment: Alignment.topCenter,
-                  child: _liveArea(session),
+                  child: backendRun && _watchCall == null
+                      ? _BackendJoinBar(
+                          busy: _joining,
+                          onJoin: _joinBackendStream,
+                        )
+                      : _liveArea(session),
                 ),
                 Expanded(
                   child: StreamMessageListView(
@@ -510,6 +540,98 @@ class _LiveBanner extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Always-visible join control for the benchmark room: the backend creates
+/// the livestream, so there is no announcement to wait for - paste its call id
+/// and join.
+class _BackendJoinBar extends StatefulWidget {
+  const _BackendJoinBar({required this.busy, required this.onJoin});
+
+  final bool busy;
+  final ValueChanged<String> onJoin;
+
+  @override
+  State<_BackendJoinBar> createState() => _BackendJoinBarState();
+}
+
+class _BackendJoinBarState extends State<_BackendJoinBar> {
+  late final _controller = TextEditingController(text: backendCallId.value);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _paste() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text?.trim();
+    if (text == null || text.isEmpty) return;
+    _controller.text = text;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        color: AppColors.live.withValues(alpha: 0.08),
+        border: const Border(
+          bottom: BorderSide(color: AppColors.live, width: 1.5),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              enabled: !widget.busy,
+              autocorrect: false,
+              textInputAction: TextInputAction.go,
+              onSubmitted: widget.onJoin,
+              style: const TextStyle(fontSize: 13.5),
+              decoration: InputDecoration(
+                isDense: true,
+                labelText: 'Call id from the backend',
+                suffixIcon: IconButton(
+                  tooltip: 'Paste',
+                  onPressed: widget.busy ? null : _paste,
+                  icon: const Icon(Icons.content_paste_rounded, size: 18),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          FilledButton.icon(
+            onPressed: widget.busy
+                ? null
+                : () => widget.onJoin(_controller.text),
+            icon: widget.busy
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.play_arrow_rounded, size: 18),
+            label: const Text('Join livestream'),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.live,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              textStyle: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -23,6 +23,7 @@ class RoomDefinition {
     required this.topic,
     required this.emoji,
     required this.accent,
+    this.backendLivestream = false,
   });
 
   /// Stream channel id. The channel type is always [roomChannelType].
@@ -37,13 +38,32 @@ class RoomDefinition {
   final String emoji;
 
   final Color accent;
+
+  /// The livestream here is run by the backend, not started from the app:
+  /// viewers paste the call id and join directly, with no announcement in chat
+  /// and no host on any device. See [benchmarkRoom].
+  final bool backendLivestream;
 }
+
+/// Room for load tests where the backend creates and drives the livestream.
+///
+/// Listed on its own above the regular rooms. Its join control is always
+/// visible, so a viewer can join as soon as the backend shares a call id.
+const benchmarkRoom = RoomDefinition(
+  id: 'backstage-benchmark',
+  name: 'Benchmark Stage',
+  topic: 'Backend-run livestream - paste a call id and join',
+  emoji: '📈',
+  accent: Color(0xFFF97316),
+  backendLivestream: true,
+);
 
 /// The rooms every signed-in user lands in.
 ///
 /// The `backstage-` prefix keeps these ids from colliding with the other
 /// samples that share the same demo Stream app.
 const predefinedRooms = <RoomDefinition>[
+  benchmarkRoom,
   RoomDefinition(
     id: 'backstage-lounge',
     name: 'The Lounge',

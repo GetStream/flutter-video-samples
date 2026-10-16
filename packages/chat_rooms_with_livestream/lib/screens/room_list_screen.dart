@@ -26,10 +26,19 @@ class _RoomListScreenState extends State<RoomListScreen> {
     // Rooms are public, so they are queried by id rather than by membership.
     filter: Filter.and([
       Filter.equal('type', roomChannelType),
-      Filter.in_('id', [for (final room in predefinedRooms) room.id]),
+      // The benchmark room is pinned above the list instead.
+      Filter.in_('id', [
+        for (final room in predefinedRooms)
+          if (!room.backendLivestream) room.id,
+      ]),
     ]),
     channelStateSort: const [SortOption.desc('last_message_at')],
   );
+
+  late final _benchChannel = StreamChat.of(
+    context,
+  ).client.channel(roomChannelType, id: benchmarkRoom.id);
+  late final Future<void> _benchWatched = _benchChannel.watch().then((_) {});
 
   @override
   void dispose() {
@@ -81,33 +90,69 @@ class _RoomListScreenState extends State<RoomListScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: StreamChannelListView(
-        controller: _controller,
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
-        separatorBuilder: (_, _, _) => const SizedBox(height: 10),
-        emptyBuilder: (_) => const Center(
-          child: Padding(
-            padding: EdgeInsets.all(32),
-            child: Text(
-              'No rooms found.\nSign out and back in to set them up.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textMuted),
-            ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+            child: _benchmarkRoomCard(),
           ),
-        ),
-        errorBuilder: (_, error) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Text(
-              '$error',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.live),
-            ),
-          ),
-        ),
-        itemBuilder: (context, channels, index, _) =>
-            _RoomCard(channel: channels[index], user: widget.user),
+          Expanded(child: _roomList()),
+        ],
       ),
+    );
+  }
+
+  /// The backend-run benchmark room, kept out of the sorted list so it is
+  /// always in the same place.
+  Widget _benchmarkRoomCard() {
+    return FutureBuilder<void>(
+      future: _benchWatched,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text(
+            'Benchmark room unavailable: ${snapshot.error}',
+            style: const TextStyle(color: AppColors.live, fontSize: 12),
+          );
+        }
+        // Keyed on completion so the card re-reads the channel state once
+        // the watch has filled it in.
+        return _RoomCard(
+          key: ValueKey(snapshot.connectionState),
+          channel: _benchChannel,
+          user: widget.user,
+        );
+      },
+    );
+  }
+
+  Widget _roomList() {
+    return StreamChannelListView(
+      controller: _controller,
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
+      separatorBuilder: (_, _, _) => const SizedBox(height: 10),
+      emptyBuilder: (_) => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Text(
+            'No rooms found.\nSign out and back in to set them up.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textMuted),
+          ),
+        ),
+      ),
+      errorBuilder: (_, error) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text(
+            '$error',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.live),
+          ),
+        ),
+      ),
+      itemBuilder: (context, channels, index, _) =>
+          _RoomCard(channel: channels[index], user: widget.user),
     );
   }
 
@@ -135,7 +180,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
 }
 
 class _RoomCard extends StatelessWidget {
-  const _RoomCard({required this.channel, required this.user});
+  const _RoomCard({super.key, required this.channel, required this.user});
 
   final Channel channel;
   final AppUser user;
@@ -220,22 +265,25 @@ class _RoomCard extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 3),
-                        Text(
-                          isLive
-                              ? '${session.hostName} · ${session.title}'
-                              : room?.topic ?? '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            color: isLive
-                                ? AppColors.live
-                                : AppColors.textMuted,
-                            fontWeight: isLive
-                                ? FontWeight.w600
-                                : FontWeight.w400,
+                        if (room?.backendLivestream ?? false)
+                          _BackendCallIdLine(accent: accent)
+                        else
+                          Text(
+                            isLive
+                                ? '${session.hostName} · ${session.title}'
+                                : room?.topic ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: isLive
+                                  ? AppColors.live
+                                  : AppColors.textMuted,
+                              fontWeight: isLive
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 8),
                         _LastMessageLine(channel: channel),
                       ],
@@ -249,6 +297,32 @@ class _RoomCard extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// The call id the benchmark room will join, in place of the topic line.
+class _BackendCallIdLine extends StatelessWidget {
+  const _BackendCallIdLine({required this.accent});
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: backendCallId,
+      builder: (context, callId, _) => Text(
+        callId.isEmpty
+            ? 'Backend livestream · paste a call id inside'
+            : 'Backend livestream · $callId',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 12.5,
+          color: accent,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }

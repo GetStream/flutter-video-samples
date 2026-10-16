@@ -136,6 +136,22 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
             ],
+            _sectionLabel('Backend benchmark'),
+            const SizedBox(height: 4),
+            const Text(
+              'Viewer account provided by the backend team for load tests. '
+              'Set its id and token at the top of lib/env/env.dart.',
+              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+            ),
+            const SizedBox(height: 12),
+            _userTile(
+              benchViewerUser,
+              badge: 'Bench viewer',
+              detail: benchViewerUser.hasToken
+                  ? benchViewerUser.id
+                  : 'No token set in lib/env/env.dart',
+            ),
+            const SizedBox(height: 28),
             _sectionLabel('Sign in as a creator'),
             const SizedBox(height: 4),
             const Text(
@@ -169,9 +185,11 @@ class _LoginScreenState extends State<LoginScreen> {
     ),
   );
 
-  Widget _userTile(AppUser user) {
+  /// [badge] replaces the role chip's text; [detail] is a muted line next to
+  /// it.
+  Widget _userTile(AppUser user, {String? badge, String? detail}) {
     final isCreator = user.role == AppRole.creator;
-    final busy = _connectingUserId != null;
+    final busy = _connectingUserId != null || !user.hasToken;
     final connecting = _connectingUserId == user.id;
 
     return Padding(
@@ -218,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(5),
                   ),
                   child: Text(
-                    user.role.label.toUpperCase(),
+                    (badge ?? user.role.label).toUpperCase(),
                     style: TextStyle(
                       fontSize: 9.5,
                       fontWeight: FontWeight.w800,
@@ -229,6 +247,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+                if (detail != null) ...[
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      detail,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

@@ -22,6 +22,20 @@ flutter run --profile \
 `STREAM_BENCH_CALL_ID` (see `lib/env/env.dart` and `newLiveCallId`). Use the
 same file for the host and the viewer build.
 
+### Backend-run livestream
+
+When the backend team creates and drives the livestream themselves, there is
+no host device:
+
+1. Set `STREAM_API_KEY` to their app, and put the viewer id and token they
+   provide into the `benchUser*` values at the top of `lib/env/env.dart` (or
+   pass the token as `STREAM_TOKEN_BENCH`).
+2. Sign in with the **Bench viewer** tile at the top of the login screen.
+3. Open **Benchmark Stage** (pinned above the other rooms), paste the call id
+   and tap **Join livestream**. The button is always there - it does not wait
+   for a chat announcement. The call must already exist; it is fetched, not
+   created. `STREAM_BENCH_CALL_ID` pre-fills the field.
+
 ## Run
 
 1. Launch both devices. A `REC` pill appears bottom-left; recording starts at

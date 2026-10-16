@@ -29,6 +29,17 @@ abstract class Env {
     defaultValue: 'xf5bwmvkbysn',
   );
 
+  /// Viewer account for the backend team's load tests. Swap the id and
+  /// token for the ones they provide (or pass `STREAM_TOKEN_BENCH`); the login
+  /// screen shows this user above everyone else.
+  static const String benchUserId = 'bench_viewer';
+  static const String benchUserName = 'Benchmark Viewer';
+  static const String benchUserImage = 'https://robohash.org/bench_viewer';
+  static const String benchUserToken = String.fromEnvironment(
+    'STREAM_TOKEN_BENCH',
+    defaultValue: '',
+  );
+
   static const String sampleUserId00 = 'alice';
   static const String sampleUserName00 = 'Alice Johnson';
   static const String sampleUserImage00 = 'https://robohash.org/alice_johnson';

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 /// Attachment type used to announce a livestream in a room's message list.
@@ -179,3 +180,18 @@ const _pinnedCallId = String.fromEnvironment('STREAM_BENCH_CALL_ID');
 String newLiveCallId(String channelId) => _pinnedCallId.isNotEmpty
     ? _pinnedCallId
     : '$channelId-live-${DateTime.now().millisecondsSinceEpoch}';
+
+/// Call id of the backend-run livestream in the benchmark room.
+///
+/// Starts as [_pinnedCallId], so a build made with `STREAM_BENCH_CALL_ID` comes
+/// up pre-filled, and holds whatever was last pasted for the rest of the run.
+final backendCallId = ValueNotifier<String>(_pinnedCallId);
+
+/// Stand-in session for a backend-run livestream, which has no announcement
+/// message to read the details from.
+LiveSession backendLiveSession(String callId) => LiveSession(
+  callId: callId,
+  hostId: '',
+  hostName: 'Backend',
+  title: 'Benchmark livestream',
+);

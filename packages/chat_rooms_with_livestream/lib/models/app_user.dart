@@ -46,7 +46,20 @@ class AppUser {
 
   /// App-level role deciding whether this user can start a livestream.
   final AppRole role;
+
+  /// Whether sign-in can work at all - false until a token is filled in.
+  bool get hasToken => token.isNotEmpty;
 }
+
+/// The backend team's viewer account for load tests, shown above the demo
+/// users.
+const benchViewerUser = AppUser(
+  id: Env.benchUserId,
+  name: Env.benchUserName,
+  image: Env.benchUserImage,
+  token: Env.benchUserToken,
+  role: AppRole.member,
+);
 
 /// The sign-in roster: three creators and three members.
 const sampleUsers = <AppUser>[
