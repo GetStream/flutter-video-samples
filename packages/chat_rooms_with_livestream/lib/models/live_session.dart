@@ -173,9 +173,10 @@ const _pinnedCallId = String.fromEnvironment('STREAM_LIVE_CALL_ID');
 /// it started in; the timestamp suffix keeps repeat broadcasts distinct.
 ///
 /// [_pinnedCallId] overrides both, for viewers outside the app (test bots,
-/// scripts) that have to join the call without reading it out of chat first. Viewers in
-/// the app are unaffected either way - they take [LiveSession.callId] from the
-/// announcement, so they follow whichever id the host actually used.
+/// scripts) that have to join the call without reading it out of chat first.
+/// Viewers in the app are unaffected either way - they take
+/// [LiveSession.callId] from the announcement, so they follow whichever id the
+/// host actually used.
 String newLiveCallId(String channelId) => _pinnedCallId.isNotEmpty
     ? _pinnedCallId
     : '$channelId-live-${DateTime.now().millisecondsSinceEpoch}';
