@@ -375,6 +375,15 @@ class _RoomScreenState extends State<RoomScreen> {
 
     return video.LivestreamPlayer(
       call: call,
+      // Keeps the stream playing in a floating window when the app is
+      // minimised. A viewer publishes nothing, so there is no local video
+      // for iOS to show in it.
+      pictureInPictureConfiguration: const video.PictureInPictureConfiguration(
+        enablePictureInPicture: true,
+        iOSPiPConfiguration: video.IOSPictureInPictureConfiguration(
+          includeLocalParticipantVideo: false,
+        ),
+      ),
       // Passing onFullscreenTapped replaces the player's own fullscreen
       // handling outright, so this screen owns the state - including the
       // contain -> cover switch the player would otherwise make itself.
