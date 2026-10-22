@@ -12,10 +12,10 @@
 /// livestreams.
 ///
 /// Every value below can be overridden at build time without editing this file,
-/// which is how the benchmark points the sample at a private Stream app:
+/// for example to point the sample at a private Stream app:
 ///
 /// ```bash
-/// flutter run --dart-define-from-file=bench_env.json
+/// flutter run --dart-define-from-file=my_env.json
 /// ```
 ///
 /// The defaults are the public demo values, so running the sample with no
