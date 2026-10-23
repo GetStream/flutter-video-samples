@@ -18,10 +18,10 @@ StreamVideo initStreamVideo({
       logPriority: Priority.debug,
     ),
     pushNotificationManagerProvider: StreamVideoPushNotificationManager.create(
-      iosPushProvider: const StreamVideoPushProvider.apn(
+      iosPushProvider: StreamVideoPushProvider.apn(
         name: AppConfig.iosPushProviderName,
       ),
-      androidPushProvider: const StreamVideoPushProvider.firebase(
+      androidPushProvider: StreamVideoPushProvider.firebase(
         name: AppConfig.androidPushProviderName,
       ),
       pushConfiguration: const StreamVideoPushConfiguration(

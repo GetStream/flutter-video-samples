@@ -42,7 +42,7 @@ class RoomDefinition {
 /// The rooms every signed-in user lands in.
 ///
 /// The `backstage-` prefix keeps these ids from colliding with the other
-/// samples that share the same demo Stream app.
+/// samples when they share the same Stream app.
 const predefinedRooms = <RoomDefinition>[
   RoomDefinition(
     id: 'backstage-lounge',

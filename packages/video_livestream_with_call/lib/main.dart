@@ -4,10 +4,19 @@ import 'package:stream_video_flutter/stream_video_flutter.dart';
 import 'package:stream_video_noise_cancellation/noise_cancellation_audio_processor.dart';
 
 import 'app_config.dart';
+import 'env_setup.dart';
 import 'home_screen.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await AppConfig.load();
+  final missingEnvKeys = AppConfig.missingEnvKeys;
+  if (missingEnvKeys.isNotEmpty) {
+    runApp(MissingEnvApp(missingKeys: missingEnvKeys));
+    return;
+  }
+
   runApp(const LivestreamWithCallApp());
 }
 

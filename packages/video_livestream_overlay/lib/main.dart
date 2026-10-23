@@ -10,15 +10,25 @@
 ///     game clock — the overlay is encoded into the outgoing video and flows
 ///     through to all participants and HLS/RTMP egress
 ///
-/// To swap in your own Stream App credentials, update `app_keys.dart`.
+/// The Stream credentials are read from `env/env.json`, see the README.
 library;
 
 import 'package:flutter/material.dart';
 
+import 'app_keys.dart';
+import 'env_setup.dart';
 import 'login_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await AppKeys.load();
+  final missingEnvKeys = AppKeys.missingEnvKeys;
+  if (missingEnvKeys.isNotEmpty) {
+    runApp(MissingEnvApp(missingKeys: missingEnvKeys));
+    return;
+  }
+
   runApp(const MainApp());
 }
 

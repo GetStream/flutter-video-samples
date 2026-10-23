@@ -2,10 +2,10 @@
 
 📚 [Ringing Tutorial](https://getstream.io/video/sdk/flutter/tutorial/ringing/) · This sample adds **Stream Chat** and push notifications (chat + incoming call / missed call) on top of the same ringing setup.
 
-The app demonstrates video calling with ringing (incoming call notifications), plus chat channels and push notifications. Configure the values in `lib/app_config.dart` and the project files below so the app works with your Stream app and Firebase project.
+The app demonstrates video calling with ringing (incoming call notifications), plus chat channels and push notifications. Configure `env/env.json` and the project files below so the app works with your Stream app and Firebase project.
 
 > [!IMPORTANT]
-> The predefined API key, user credentials, and any hardcoded call IDs or channel IDs in this sample should be treated as publicly accessible demo values. If you reuse them, other people running the sample may join the same calls or conversations.
+> This sample needs your own Stream API key and user tokens. See [Stream Configuration](#2-stream-configuration) before running it.
 
 ## Project Setup Guide
 
@@ -40,38 +40,29 @@ The app demonstrates video calling with ringing (incoming call notifications), p
 
 ### 2. Stream Configuration
 
-Update `lib/app_config.dart` with your Stream credentials:
+The sample doesn't contain any Stream credentials. It reads the API key, the user tokens, and the push provider names from `env/env.json` when it starts:
 
-```dart
-class AppConfig {
-  AppConfig._();
+| Key | Value |
+| --- | --- |
+| `STREAM_API_KEY` | Your Stream API key from the [Stream Dashboard](https://dashboard.getstream.io/) |
+| `STREAM_IOS_PUSH_PROVIDER` | The name of your APN provider in the Stream Dashboard (default: `apn-flutter-sample`) |
+| `STREAM_ANDROID_PUSH_PROVIDER` | The name of your Firebase provider in the Stream Dashboard (default: `flutter-firebase`) |
+| `STREAM_TOKEN_ALICE_JOHNSON` | A user token for `alice_johnson` |
+| `STREAM_TOKEN_BOB_SMITH` | A user token for `bob_smith` |
+| `STREAM_TOKEN_CHARLIE_BROWN` | A user token for `charlie_brown` |
 
-  // Your Stream API key from the Stream Dashboard
-  static const String streamApiKey = 'YOUR_STREAM_API_KEY';
+The quickest way to create it is the generator script in the repository root. It asks for your API key and secret and signs the tokens locally. The secret is not stored:
 
-  // Push notification provider names (configure these in Stream Dashboard)
-  static const String iosPushProviderName = 'YOUR_APN_PROVIDER_NAME';
-  static const String androidPushProviderName = 'YOUR_FIREBASE_PROVIDER_NAME';
-
-  // Configure at least two test users for the demo
-  static const String user1Id = 'YOUR_USER_1_ID';
-  static const String user1Name = 'YOUR_USER_1_NAME';
-  static const String user1Token = 'YOUR_USER_1_TOKEN';
-
-  static const String user2Id = 'YOUR_USER_2_ID';
-  static const String user2Name = 'YOUR_USER_2_NAME';
-  static const String user2Token = 'YOUR_USER_2_TOKEN';
-
-  // User 3 (optional)
-  static const String user3Id = 'YOUR_USER_3_ID';
-  static const String user3Name = 'YOUR_USER_3_NAME';
-  static const String user3Token = 'YOUR_USER_3_TOKEN';
-}
+```bash
+scripts/generate_env.sh packages/video_ringing_with_chat_push
 ```
 
-#### How to generate user tokens
+If your push providers have different names in the Stream Dashboard, update them in `env/env.json`. Alternatively, copy `env/env.example.json` to `env/env.json` and fill in the values yourself. You can generate user tokens with the [token generator](https://getstream.io/chat/docs/flutter-dart/tokens_and_authentication/#manually-generating-tokens).
 
-For testing, user tokens can be generated once and stored in the app. Use the [Stream token generator](https://getstream.io/chat/docs/flutter-dart/tokens_and_authentication/#manually-generating-tokens): provide your Stream app secret and user ID to generate a token.
+Then run the sample as usual with `flutter run` or from your IDE. If `env/env.json` is missing values, the app shows a setup screen listing them. `env/env.json` is ignored by git, so your credentials stay out of the repository.
+
+> [!NOTE]
+> `env/env.json` is bundled with the app, and tokens created this way don't expire. That's fine for trying the sample out, but in a production app, generate tokens on your server.
 
 ### 3. Firebase Options
 
@@ -97,7 +88,7 @@ dart pub global activate flutterfire_cli
 ### Token issues
 
 - **Symptoms**: Authentication failures, sudden disconnections.
-- **Solutions**: Check token expiration (e.g. with [jwt.io](https://jwt.io)). Use your app’s secret to generate tokens, not demo tokens.
+- **Solutions**: Check token expiration (e.g. with [jwt.io](https://jwt.io)). Make sure the tokens were generated with your app’s secret.
 
 ### Ringing / push issues
 
@@ -107,7 +98,7 @@ dart pub global activate flutterfire_cli
   - Do not call yourself (same user on two devices).
   - Ensure call recipients have connected to Stream at least once.
   - Ensure members exist on Stream’s platform.
-  - Ensure push provider names in `app_config.dart` match the Stream Dashboard.
+  - Ensure push provider names in `env/env.json` match the Stream Dashboard.
   - Verify certificates and keys are valid.
 
 ### iOS CallKit
@@ -117,7 +108,7 @@ dart pub global activate flutterfire_cli
   - Disable Do Not Disturb and Focus modes when testing.
   - Check that the VoIP certificate matches your bundle ID.
   - Ensure bundle ID matches the Stream Dashboard configuration.
-  - Confirm push provider names in `app_config.dart` match the Dashboard.
+  - Confirm push provider names in `env/env.json` match the Dashboard.
   - Check “Webhook & Push Logs” in the Stream Dashboard.
 
 ### Verbose logging

@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 import 'env/env.dart';
+import 'env_setup.dart';
 import 'screens/login_screen.dart';
 import 'theme.dart';
 import 'widgets/livestream_attachment_builder.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Env.load();
+  final missingEnvKeys = Env.missingEnvKeys;
+  if (missingEnvKeys.isNotEmpty) {
+    runApp(MissingEnvApp(missingKeys: missingEnvKeys));
+    return;
+  }
 
   // One chat client for the whole app, created before runApp. The Video client
   // is a singleton created at sign-in, once we know which user's token to use.

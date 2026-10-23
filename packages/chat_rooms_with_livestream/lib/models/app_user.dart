@@ -49,7 +49,7 @@ class AppUser {
 }
 
 /// The sign-in roster: three creators and three members.
-const sampleUsers = <AppUser>[
+final sampleUsers = <AppUser>[
   AppUser(
     id: Env.sampleUserId00,
     name: Env.sampleUserName00,

@@ -1,42 +1,47 @@
+import 'env_setup.dart';
+
 /// Configure the values below so the app works with your Stream app.
 ///
-/// CONFIGURATION REQUIRED TO USE YOUR OWN STREAM CREDENTIALS
+/// The API key and the user tokens are not part of the source code. They are
+/// read from `env/env.json` when the app starts, see [load].
 ///
-/// To use this project with your Stream App credentials:
-///
-/// 1. Replace the `streamApiKey` below with your Stream API key from the
-///    Stream Dashboard (https://dashboard.getstream.io/).
-///
-/// 2. Generate new user tokens for your test users using the Stream
-///    token generator:
-///    https://getstream.io/chat/docs/flutter-dart/tokens_and_authentication/#manually-generating-tokens
-///
-/// 3. Update the user IDs and tokens below to match your users.
-///
-/// IMPORTANT: The predefined API key, user credentials, and IDs in this sample
-/// should be treated as publicly accessible demo values. If you reuse them,
-/// other people running the sample may join the same livestream and call.
+/// Create `env/env.json` by running `scripts/generate_env.sh` from the
+/// repository root, or copy `env/env.example.json` and fill it in by hand. See
+/// the README for details.
 class AppConfig {
   AppConfig._();
 
+  static Map<String, String> _env = const {};
+
+  /// Reads the values from `env/env.json`. Call before using the config.
+  static Future<void> load() async => _env = await loadEnv();
+
   /// Your Stream API key from the Stream Dashboard
-  static const String streamApiKey = 'mmhfdzb5evj2';
+  static String get streamApiKey => _env['STREAM_API_KEY'] ?? '';
 
   // The host streams; the viewer watches and may "call" the host.
   static const String hostId = 'alice_johnson';
   static const String hostName = 'Alice Johnson';
-  static const String hostToken =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYWxpY2Vfam9obnNvbiJ9.v6-yXWgbLyykj9yt_ophmaC5FCGAG9ic6p02V09CmKQ';
+  static String get hostToken => _env['STREAM_TOKEN_ALICE_JOHNSON'] ?? '';
 
   static const String viewerId = 'bob_smith';
   static const String viewerName = 'Bob Smith';
-  static const String viewerToken =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYm9iX3NtaXRoIn0.rYCa73497wMkuiNC9P8xoEiiXlMxX_CJwBzU33-ZbHY';
+  static String get viewerToken => _env['STREAM_TOKEN_BOB_SMITH'] ?? '';
 
   static const String viewer2Id = 'carol_davis';
   static const String viewer2Name = 'Carol Davis';
-  static const String viewer2Token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2Fyb2xfZGF2aXMifQ.2_qXNlnlSeAJz_YVB6goKSne2KD2b_zMT5SwXHY0MLo';
+  static String get viewer2Token => _env['STREAM_TOKEN_CAROL_DAVIS'] ?? '';
+
+  /// The names of the `env/env.json` entries that are missing or empty.
+  static List<String> get missingEnvKeys => [
+    for (final key in const [
+      'STREAM_API_KEY',
+      'STREAM_TOKEN_ALICE_JOHNSON',
+      'STREAM_TOKEN_BOB_SMITH',
+      'STREAM_TOKEN_CAROL_DAVIS',
+    ])
+      if ((_env[key] ?? '').isEmpty) key,
+  ];
 
   /// The shared livestream channel. Both host and viewer use this id.
   static const String livestreamId = 'livestream-with-call-demo-2';

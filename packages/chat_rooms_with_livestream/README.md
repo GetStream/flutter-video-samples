@@ -3,7 +3,7 @@
 A creator-community sample built on the [Stream Chat Flutter SDK](https://pub.dev/packages/stream_chat_flutter) and the [Stream Video Flutter SDK](https://pub.dev/packages/stream_video_flutter). Members chat in a set of predefined rooms; **content creators can start a livestream from inside a room**, and everyone else in that room can watch it without leaving the conversation.
 
 > [!IMPORTANT]
-> The predefined API key, user tokens, and room ids in this sample should be treated as publicly accessible demo values. If you reuse them, other people running the sample may join the same rooms and livestreams.
+> This sample needs your own Stream API key and user tokens. See [Configuration](#configuration) before running it.
 
 ## Use Case
 
@@ -28,9 +28,37 @@ A community app where the conversation is the front door and the broadcast happe
 
 1. Open the project in your IDE.
 2. Run `flutter pub get`.
-3. Run the app on a physical device or emulator. **The iOS Simulator and the Android emulator have no real camera**, so the host's preview will be blank there — run the creator on a physical device to see actual video.
+3. Create `env/env.json` with your Stream credentials, see [Configuration](#configuration).
+4. Run the app on a physical device or emulator. **The iOS Simulator and the Android emulator have no real camera**, so the host's preview will be blank there — run the creator on a physical device to see actual video.
    It also runs in the browser (`flutter run -d chrome`); the browser asks for camera and microphone access when a creator goes live.
-4. Sign in as a creator (Alice, Carol, or Eva) on one device and as a member (Bob, David, or Frank) on another, open the same room, and tap **Go live**.
+5. Sign in as a creator (Alice, Carol, or Eva) on one device and as a member (Bob, David, or Frank) on another, open the same room, and tap **Go live**.
+
+## Configuration
+
+The sample doesn't contain any Stream credentials. It reads the API key and the user tokens from `env/env.json` when it starts:
+
+| Key | Value |
+| --- | --- |
+| `STREAM_API_KEY` | Your Stream API key from the [Stream Dashboard](https://dashboard.getstream.io/) |
+| `STREAM_TOKEN_ALICE_JOHNSON` | A user token for `alice_johnson` |
+| `STREAM_TOKEN_BOB_SMITH` | A user token for `bob_smith` |
+| `STREAM_TOKEN_CAROL_DAVIS` | A user token for `carol_davis` |
+| `STREAM_TOKEN_DAVID_LEE` | A user token for `david_lee` |
+| `STREAM_TOKEN_EVA_MARTINEZ` | A user token for `eva_martinez` |
+| `STREAM_TOKEN_FRANK_WILSON` | A user token for `frank_wilson` |
+
+The quickest way to create it is the generator script in the repository root. It asks for your API key and secret and signs the tokens locally. The secret is not stored:
+
+```bash
+scripts/generate_env.sh packages/chat_rooms_with_livestream
+```
+
+Alternatively, copy `env/env.example.json` to `env/env.json` and fill in the values yourself. You can generate user tokens with the [token generator](https://getstream.io/chat/docs/flutter-dart/tokens_and_authentication/#manually-generating-tokens).
+
+Then run the sample as usual with `flutter run` or from your IDE. If `env/env.json` is missing values, the app shows a setup screen listing them. `env/env.json` is ignored by git, so your credentials stay out of the repository.
+
+> [!NOTE]
+> `env/env.json` is bundled with the app, and tokens created this way don't expire. That's fine for trying the sample out, but in a production app, generate tokens on your server.
 
 ## ⚠️ The Live State Is Client-Driven — Don't Ship That
 
