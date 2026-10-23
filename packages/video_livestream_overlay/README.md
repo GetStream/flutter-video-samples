@@ -5,7 +5,7 @@ A livestreaming sample app for the [Stream Video Flutter SDK](https://pub.dev/pa
 > This sample is the runnable companion to the [Video Compositing cookbook guide](https://getstream.io/video/docs/flutter/ui-cookbook/video-compositing/).
 
 > [!IMPORTANT]
-> The predefined API key, user credentials, and channel IDs in this sample should be treated as publicly accessible demo values. If you reuse them, other people running the sample may join the same livestream channels.
+> This sample needs your own Stream API key and user tokens. See [Configuration](#configuration) before running it.
 
 ## Use Case
 
@@ -56,7 +56,8 @@ The host joins with `MirrorMode.off` on the camera (see `home_screen.dart`). Thi
 
 1. `flutter pub get`
 2. For iOS: `cd ios && pod install`
-3. `flutter run` on a physical device or emulator with a camera
+3. Create `env/env.json` with your Stream credentials, see [Configuration](#configuration)
+4. `flutter run` on a physical device or emulator with a camera
 
 To exercise the full end-to-end flow, run on two devices:
 
@@ -67,10 +68,27 @@ Edit the scoreboard on Device 1 and watch Device 2 pick up the changes within a 
 
 ## Configuration
 
-To use your own Stream credentials, update `lib/app_keys.dart`:
+The sample doesn't contain any Stream credentials. It reads the API key and the user tokens from `env/env.json` when it starts:
 
-- Replace `streamApiKey` with your Stream API key
-- Generate new user tokens at https://getstream.io/chat/docs/flutter-dart/tokens_and_authentication/#manually-generating-tokens
+| Key | Value |
+| --- | --- |
+| `STREAM_API_KEY` | Your Stream API key from the [Stream Dashboard](https://dashboard.getstream.io/) |
+| `STREAM_TOKEN_ALICE_JOHNSON_LIVESTREAM` | A user token for `alice_johnson_livestream` |
+| `STREAM_TOKEN_BOB_SMITH_LIVESTREAM` | A user token for `bob_smith_livestream` |
+| `STREAM_TOKEN_CHARLIE_BROWN_LIVESTREAM` | A user token for `charlie_brown_livestream` |
+
+The quickest way to create it is the generator script in the repository root. It asks for your API key and secret and signs the tokens locally. The secret is not stored:
+
+```bash
+scripts/generate_env.sh packages/video_livestream_overlay
+```
+
+Alternatively, copy `env/env.example.json` to `env/env.json` and fill in the values yourself. You can generate user tokens with the [token generator](https://getstream.io/chat/docs/flutter-dart/tokens_and_authentication/#manually-generating-tokens).
+
+Then run the sample as usual with `flutter run` or from your IDE. If `env/env.json` is missing values, the app shows a setup screen listing them. `env/env.json` is ignored by git, so your credentials stay out of the repository.
+
+> [!NOTE]
+> `env/env.json` is bundled with the app, and tokens created this way don't expire. That's fine for trying the sample out, but in a production app, generate tokens on your server.
 
 ## Dependencies
 

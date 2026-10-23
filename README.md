@@ -25,6 +25,17 @@ With Stream’s video components, you can use their SDK to build in-app video ca
 
 If you’re interested in customizing the UI components for the Video SDK, check out the [UI Component Docs](https://getstream.io/video/docs/flutter/ui-components-overview/).
 
+## 🔑 Running the Samples
+The samples don't contain any Stream credentials. Each one reads your API key and user tokens from `env/env.json`, which git ignores. Create one for every sample with the generator script. It asks for your API key and secret from the [Stream Dashboard](https://dashboard.getstream.io/) and signs the user tokens locally. The secret is not stored:
+
+```bash
+scripts/generate_env.sh
+```
+
+To configure only some samples, pass their directories, for example `scripts/generate_env.sh packages/video_multicall`. You can also copy a sample's `env/env.example.json` to `env/env.json` and fill it in yourself.
+
+Then run the sample as usual with `flutter run` or from your IDE. See the README of each sample for the values it needs and any further setup.
+
 ## 📱 Previews
 <p align="center">
 <img src="readme-assets/readme_usecase.png" alt="Stream Video for Flutter Preview image" style="box-shadow: 0 3px 10px rgb(0 0 0 / 0.2)" />

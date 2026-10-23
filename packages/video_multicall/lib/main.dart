@@ -3,10 +3,19 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 
 import 'app_config.dart';
+import 'env_setup.dart';
 import 'home_screen.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await AppConfig.load();
+  final missingEnvKeys = AppConfig.missingEnvKeys;
+  if (missingEnvKeys.isNotEmpty) {
+    runApp(MissingEnvApp(missingKeys: missingEnvKeys));
+    return;
+  }
+
   runApp(const MulticallApp());
 }
 

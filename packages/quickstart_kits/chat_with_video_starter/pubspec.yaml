@@ -20,3 +20,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # Stream credentials, see env/env.example.json.
+  assets:
+    - env/

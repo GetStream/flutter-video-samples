@@ -12,6 +12,7 @@ import 'app_config.dart';
 import 'auto_login_screen.dart';
 import 'chat_notifications.dart';
 import 'credential_store.dart';
+import 'env_setup.dart';
 import 'user_picker_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -19,6 +20,12 @@ import 'user_picker_screen.dart';
 // ---------------------------------------------------------------------------
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Runs in its own isolate, so the config has to be loaded here as well.
+  // Without `env/env.json` there is no API key to use.
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppConfig.load();
+  if (AppConfig.missingEnvKeys.isNotEmpty) return;
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // ── Chat message ──────────────────────────────────────────────────────────
@@ -75,10 +82,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       options: StreamVideoOptions(keepConnectionsAliveWhenInBackground: true),
       pushNotificationManagerProvider:
           StreamVideoPushNotificationManager.create(
-            iosPushProvider: const StreamVideoPushProvider.apn(
+            iosPushProvider: StreamVideoPushProvider.apn(
               name: AppConfig.iosPushProviderName,
             ),
-            androidPushProvider: const StreamVideoPushProvider.firebase(
+            androidPushProvider: StreamVideoPushProvider.firebase(
               name: AppConfig.androidPushProviderName,
             ),
             pushConfiguration: const StreamVideoPushConfiguration(
@@ -121,8 +128,15 @@ late final StreamChatClient _chatClient;
 // ---------------------------------------------------------------------------
 // main
 // ---------------------------------------------------------------------------
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await AppConfig.load();
+  final missingEnvKeys = AppConfig.missingEnvKeys;
+  if (missingEnvKeys.isNotEmpty) {
+    runApp(MissingEnvApp(missingKeys: missingEnvKeys));
+    return;
+  }
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 

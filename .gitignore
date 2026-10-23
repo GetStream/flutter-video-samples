@@ -122,6 +122,8 @@ app.*.symbols
 # Environment Variables
 .env
 env.g.dart
+# Stream credentials, see env/env.example.json in each sample.
+env.json
 
 # Fastlane specific
 **/fastlane/report.xml
@@ -130,3 +132,4 @@ env.g.dart
 **/fastlane/test_output
 /video-buddy-session.json
 
+.stream/
